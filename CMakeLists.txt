@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 3.25)
 project(naomi CXX)
 
 
 find_package(fmt)
 find_package(Boost)
 find_package(Eigen3)
-find_package(symengine)
+find_package(symengine CONFIG)
 find_package(Armadillo)
 
 add_library(naomi src/naomi.cpp
@@ -28,38 +28,9 @@ target_include_directories(naomi PUBLIC include)
 target_link_libraries(naomi
         fmt::fmt
         Eigen3::Eigen
-        symengine::symengine
-        Armadillo::Armadillo
-        Boost::headers
-        Boost::atomic
-        Boost::container
-        Boost::context
-        Boost::coroutine
-        Boost::date_time
-        Boost::exception
-        Boost::filesystem
-        Boost::graph
-        Boost::iostreams
-        Boost::locale
-        Boost::log
-        Boost::log_setup
-        Boost::math_c99
-        Boost::math_c99f
-        Boost::math_c99l
-        Boost::math_tr1
-        Boost::math_tr1f
-        Boost::math_tr1l
-        Boost::nowide
-        Boost::program_options
-        Boost::random
-        Boost::regex
-        Boost::serialization
-        Boost::system
-        Boost::thread
-        Boost::timer
-        Boost::type_erasure
-        Boost::wave
-        Boost::wserialization
+        ${SYMENGINE_LIBRARIES}
+        ${ARMADILLO_LIBRARIES}
+        ${BOOST_LIBRARIES}
 )
 
 set_target_properties(naomi PROPERTIES PUBLIC_HEADER "include/naomi.h")
