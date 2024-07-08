@@ -9,14 +9,16 @@
 #include "orbits/orbits.h"
 #include "spacecraft/state_vector.h"
 
+using namespace naomi::orbits;
+
 TEST(TestFrameTransforms, TestECI2RIC)
 {
   double initial_r = 6378000 + 250000;
   arma::vec3 r = {initial_r, 0, 0};
-  state_vector sv = get_circular_orbit(r);
+  pv_state_type sv = get_circular_orbit(r);
   auto t = eci2ric(sv);
-  auto r_eci = sv.get_position();
-  auto v_eci = sv.get_velocity();
+  auto r_eci = sv(arma::span(0, 2));
+  auto v_eci = sv(arma::span(3, 5));
 
   arma::vec3 r_ric = (r_eci.t() * t).t();
   arma::vec3 v_ric =( v_eci.t() * t).t();

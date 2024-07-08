@@ -2,25 +2,39 @@
 // Created by alex_ on 6/10/2024.
 //
 
-#include <gtest/gtest.h>
-#include "naomi.h"
-#include "bodies/celestial_body.h"
+#include <algorithm>
 #include <armadillo>
-#include <symengine/simplify.h>
+#include <array>
+#include <cassert>
+#include <iostream>
+#include <iterator>
+#include <utility>
 
-#include "orbits/orbits.h"
+#include <boost/numeric/odeint/iterator/adaptive_iterator.hpp>
+#include <boost/numeric/odeint/iterator/adaptive_time_iterator.hpp>
+#include <boost/numeric/odeint/stepper/generation.hpp>
+#include <boost/numeric/odeint/stepper/runge_kutta4.hpp>
+#include <boost/numeric/odeint/stepper/runge_kutta_cash_karp54.hpp>
+#include <boost/numeric/odeint/stepper/runge_kutta_dopri5.hpp>
+#include <boost/range/adaptor/filtered.hpp>
+#include <boost/range/algorithm.hpp>
+#include <boost/range/numeric.hpp>
+#include <gtest/gtest.h>
+
+#include "bodies/celestial_body.h"
 #include "bodies/earth.h"
+#include "forces/two_body_force_model.h"
+#include "naomi.h"
+#include "orbits/orbits.h"
 #include "propagators/numerical_propagator.h"
 #include "spacecraft/state_vector.h"
+#include "systems/system.h"
 
-// Demonstrate some basic assertions.
-TEST(HelloTest, BasicAssertions) {
-    // Expect two strings not to be equal.
-    EXPECT_STRNE("hello", "world");
-    // Expect equality.
-    EXPECT_EQ(7 * 6, 42);
-}
-
+using namespace naomi;
+using namespace naomi::numeric;
+using namespace naomi::orbits;
+using namespace naomi::bodies;
+using namespace naomi::forces;
 TEST(ArmadilloTest, BasicAssertions)
 {
     arma::vec test = {1, 2, 3};
@@ -66,44 +80,74 @@ TEST(HigherOrderGravityTest, PartialDerivative)
     std::cout << num_partial;
 }
 
-TEST(NumericalPropagatorTest, Propagation)
+TEST(NumericalPropagatorTest, CircularOrbitPropagation)
 {
   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-  state_vector state = get_circular_orbit(r);
+  pv_state_type state_vec = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
-  std::vector<spacecraft> spacecrafts;
-  spacecraft sc(state, 100.0);
-  spacecrafts.push_back(sc);
-  // spacecrafts.push_back(sc2);
+  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
 
-  two_body_system system(spacecrafts, constants::EARTH_MU, earth_body);
-  typedef
-    boost::numeric::odeint::runge_kutta_dopri5<
-      state_vector,
-      double,
-      state_vector,
-      double,
-      boost::numeric::odeint::vector_space_algebra> rk4;
-  numerical_propagator< rk4> propagator(system);
+  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  typedef numerical_propagator<rk_dopri5_stepper> propagator;
+  physical_system<propagator> system(sc, two_body_forces);
   std::fstream fout;
 
   // opens an existing csv file or creates a new file.
-  fout.open("C:\\Users\\alex_\\code\\naomi\\test_sym_prop_j2.csv", std::ios::out);
+  fout.open("/home/alexpost/code/naomi/test_sym_prop_j2.csv", std::ios::out);
 
   fout << "x,y,z,vx,vy,vz\n";
 
-  auto curr_state = system.get_spacecrafts()[0].get_state();
-  fout << curr_state.get_position()[0]  << "," << curr_state.get_position()[1] << "," << curr_state.get_position()[2] << ",";
-  fout << curr_state.get_velocity()[0]  << "," << curr_state.get_velocity()[1] << "," << curr_state.get_velocity()[2] << "\n";
+
+  auto curr_state = sc->get_state();
+  fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
+  fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
 
   double t = 0.0;
   std::cout << "Starting propagation..\n";
   while (t < 60.0*60.0*12) {
-    propagator.propagate_by(10.0);
-    auto curr_state = system.get_spacecrafts()[0].get_state();
+    system.simulate_by(10.0);
+    curr_state = sc->get_state();
     std::cout << t << "\n";
-    fout << curr_state.get_position()[0]  << "," << curr_state.get_position()[1] << "," << curr_state.get_position()[2] << ",";
-    fout << curr_state.get_velocity()[0]  << "," << curr_state.get_velocity()[1] << "," << curr_state.get_velocity()[2] << "\n";
+    fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
+    fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
     t += 10.0;
   }
 }
+
+TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
+{
+  arma::vec3 r = {1000000, 5000000, 7000000};
+  arma::vec3 v = {3000, 4000, 5000};
+  pv_state_type state = join_cols(r, v);
+  // state_type state = get_circular_orbit(r);
+  std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
+  std::vector<spacecraft> spacecrafts;
+  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state, 100.0);
+
+  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  typedef numerical_propagator<rk_dopri5_stepper> propagator;
+  physical_system<propagator> system(sc, two_body_forces);
+  std::fstream fout;
+
+  // opens an existing csv file or creates a new file.
+  fout.open("/home/alexpost/code/naomi/test_sym_prop_j2_elliptical.csv", std::ios::out);
+
+  fout << "x,y,z,vx,vy,vz\n";
+
+  auto curr_state = sc->get_state();
+  fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
+  fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
+
+  double t = 0.0;
+  std::cout << "Starting propagation..\n";
+  while (t < 60.0*60.0*24) {
+    system.simulate_by(10.0);
+    curr_state = sc->get_state();
+    // std::cout << t << "\n";
+    fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
+    fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
+    t += 10.0;
+  }
+  fout.close();
+}
+

@@ -13,8 +13,12 @@
   #define NAOMI_EXPORT
 #endif
 
-class state_vector;
-NAOMI_EXPORT void naomi();
-NAOMI_EXPORT void naomi_print_vector(const std::vector<std::string> &strings);
+// class state_vector;
+#include <armadillo>
+// NAOMI_EXPORT void naomi();
+// NAOMI_EXPORT void naomi_print_vector(const std::vector<std::string> &strings);
 
-typedef state_vector state_type;
+typedef arma::vec6 pv_state_type;
+typedef arma::vec9 pva_state_type;
+typedef arma::vec::fixed<10> pv_rot_state_type;
+typedef arma::vec::fixed<13> pva_rot_state_type;

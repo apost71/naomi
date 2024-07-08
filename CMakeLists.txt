@@ -1,12 +1,21 @@
 cmake_minimum_required(VERSION 3.25)
 project(naomi CXX)
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+
+include(GNUInstallDirs)
+
 
 find_package(fmt)
 find_package(Boost)
 find_package(Eigen3)
-find_package(symengine CONFIG)
+find_package(SymEngine 0.1.0 REQUIRED CONFIG
+        PATH_SUFFIXES lib/cmake/symengine CMake/)
 find_package(Armadillo)
+set(CMAKE_BUILD_TYPE ${SYMENGINE_BUILD_TYPE})
+set(CMAKE_CXX_FLAGS_RELEASE ${SYMENGINE_CXX_FLAGS_RELEASE})
+set(CMAKE_CXX_FLAGS_DEBUG ${SYMENGINE_CXX_FLAGS_DEBUG})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYMENGINE_CXX_FLAGS}")
 
 add_library(naomi src/naomi.cpp
         include/bodies/celestial_body.h
@@ -23,8 +32,19 @@ add_library(naomi src/naomi.cpp
         include/maneuvers/hohmann_transfer.h
         include/maneuvers/maneuver.h
         include/frames/transforms.h
-        include/propagators/event_detector.h)
-target_include_directories(naomi PUBLIC include)
+        include/propagators/event_detector.h
+        include/forces/force_model.h
+        include/forces/two_body_force_model.h
+        include/propagators/event_handler.h
+        include/maneuvers/maneuver_plan.h
+        include/control/spacecraft_controller.h
+        src/maneuvers/maneuver_plan.cpp
+        include/observers/simulation_observer.h
+        include/simulation/simulation.h
+        src/observers/results_csv_writer_observer.cpp
+        examples/simulation/main.cpp)
+include_directories(${SYMENGINE_INCLUDE_DIRS})
+target_include_directories(naomi PUBLIC include )
 target_link_libraries(naomi
         fmt::fmt
         Eigen3::Eigen
@@ -36,7 +56,13 @@ target_link_libraries(naomi
 set_target_properties(naomi PROPERTIES PUBLIC_HEADER "include/naomi.h")
 
 if (NOT BUILD_TESTING STREQUAL OFF)
+#    enable_testing()
     add_subdirectory(tests)
 endif()
 
+
 install(TARGETS naomi)
+
+#if(BUILD_EXAMPLES)
+add_subdirectory(examples)
+#endif()

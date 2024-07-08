@@ -23,7 +23,8 @@ using SymEngine::Expression;
 #define EARTH_EQ_RADIUS 6378.1 * 1000.0 // meters
 #endif
 
-
+namespace naomi::bodies
+{
 class earth : public celestial_body
 {
   double earth_j2 = 1082.63 * 10e-6;
@@ -80,5 +81,6 @@ public:
     return result;
   }
 };
+}
 
 #endif //EARTH_H

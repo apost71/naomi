@@ -9,15 +9,17 @@
 #include "constants.h"
 #include "spacecraft/state_vector.h"
 
-inline state_vector get_circular_orbit(const arma::vec3& initial_position, const double mu = constants::EARTH_MU)
+namespace naomi::orbits
 {
-  double vn = sqrt(mu/norm(initial_position));
-  arma::vec k_hat {0.0, 0.0, 1.0};
-  arma::vec h_dir = arma::normalise(arma::cross(initial_position, cross(k_hat, initial_position)));
-  arma::vec v_dir = arma::normalise(arma::cross(h_dir, initial_position));
-  arma::vec v = v_dir*vn;
-  state_vector sv(initial_position, v);
-  return sv;
+inline pv_state_type get_circular_orbit(const arma::vec3& initial_position, const double mu = constants::EARTH_MU)
+{
+  const double vn = sqrt(mu / norm(initial_position));
+  const arma::vec k_hat {0.0, 0.0, 1.0};
+  const arma::vec h_dir = arma::normalise(
+      arma::cross(initial_position, cross(k_hat, initial_position)));
+  const arma::vec v_dir = arma::normalise(arma::cross(h_dir, initial_position));
+  const arma::vec v = v_dir*vn;
+  return arma::join_cols(initial_position, v);
 }
-
+}
 #endif //ORBITS_H

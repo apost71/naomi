@@ -6,107 +6,90 @@
 #define INTEGRATOR_H
 
 #include <naomi.h>
+#include <systems/two_body.h>
 
-#include "boost/numeric/odeint.hpp"
 #include "propagators/event_detector.h"
-#include "spacecraft/state_vector.h"
+#include "forces/force_model.h"
 
-template< class TStepper>
+namespace naomi::numeric
+{
+using namespace events;
+using namespace forces;
+
+template< class Stepper>
 class integrator
 {
-    TStepper m_stepper;
+public:
+  integrator(const integrator& other)
+      : m_stepper(other.m_stepper)
+  {
+  }
+  integrator(integrator&& other) noexcept
+      : m_stepper(std::move(other.m_stepper))
+  {
+  }
+  integrator& operator=(const integrator& other)
+  {
+    if (this == &other)
+      return *this;
+    m_stepper = other.m_stepper;
+    return *this;
+  }
+  integrator& operator=(integrator&& other) noexcept
+  {
+    if (this == &other)
+      return *this;
+    m_stepper = std::move(other.m_stepper);
+    return *this;
+  }
+
+private:
+  Stepper m_stepper;
 
 public:
-    ~ integrator() = default;
-    integrator() = default;
-    integrator(const integrator&) = delete;
-    integrator(integrator&&) = delete;
-    auto operator=(const integrator&) -> integrator& = delete;
-    auto operator=(const integrator&&) -> integrator& = delete;
+  ~ integrator() = default;
+  integrator() = default;
 
-    void integrate(std::function<void(state_vector&, state_vector&, double)> system, state_vector& state, double start_time, double end_time, double step_size)
-    {
-        auto stepper = make_dense_output(1.0e-6, 1.0e-6, m_stepper);
-        auto ode_range = boost::numeric::odeint::make_adaptive_range(stepper, system, state,
-                                                                 start_time, end_time, step_size);
-        auto cond = apside_detector();
-        auto found_iter = std::find_if(ode_range.first, ode_range.second, cond);
-        if(found_iter == ode_range.second)
-        {
-          // no threshold crossing -> return time after t_end and ic
-          std::cout << "No apside crossing\n";
-        }
-        double t0 = stepper.previous_time();
-        double t1 = stepper.current_time();
-        double t_m;
-        state_type x_m;
-        // use odeint's resizing functionality to allocate memory for x_m
-        boost::numeric::odeint::adjust_size_by_resizeability(x_m, state,
-                                                             typename boost::numeric::odeint::is_resizeable<state_type>::type());
-        while(std::abs(t1 - t0) > 1e-6) {
-          t_m = 0.5 * (t0 + t1);  // get the mid point time
-          stepper.calc_state(t_m, x_m); // obtain the corresponding state
-          if (cond(x_m))
-            t1 = t_m;  // condition changer lies before midpoint
-          else
-            t0 = t_m;  // condition changer lies after midpoint
-        }
-        // we found the interval of size eps, take it's midpoint as final guess
-        t_m = 0.5 * (t0 + t1);
-        stepper.calc_state(t_m, x_m);
-        // integrate_const(m_stepper, system, state, start_time, end_time, step_size);
+  std::pair<double, pv_state_type> find_event_time(const std::shared_ptr<force_model>& force_model, double start_time, double end_time, std::shared_ptr<event_detector> e, state_and_time_type state, double step_size)
+  {
+    auto stepper = make_dense_output(1.0e-6, 1.0e-6, Stepper());
+    auto system = make_system(force_model);
+    pv_state_type s = state.first;
+    stepper.initialize(s, start_time, end_time-start_time);
+    stepper.do_step(system);
+    double mid_time;
+    pv_state_type next_state = s;
+    while(std::abs(end_time - start_time) > 1e-6) {
+      mid_time = 0.5 * (start_time + end_time);  // get the mid point time
+      stepper.calc_state(mid_time, next_state); // obtain the corresponding state
+      state_and_time_type prev = {s, start_time};
+      state_and_time_type curr = {next_state, mid_time};
+      if ((*e)(prev, curr))
+        end_time = mid_time;  // condition changer lies before midpoint
+      else {
+        start_time = mid_time;  // condition changer lies after midpoint
+        s = next_state;
+      }
     }
+    // we found the interval of size eps, take it's midpoint as final guess
+    mid_time = 0.5 * (start_time + end_time);
+    stepper.calc_state(mid_time, s);
+    return {mid_time, s};
+  }
+
+  auto make_system(const std::shared_ptr<force_model>& force_model)
+  {
+    return [force_model](const pv_state_type& x, pv_state_type& dxdt, double t){(*force_model)(x, dxdt, t);};
+  }
+
+  double integrate(const std::shared_ptr<force_model>& force_model, pv_state_type& state, double start_time, double end_time, double step_size)
+  {
+    auto system = make_system(force_model);
+    integrate_const(m_stepper, system, state, start_time, end_time, step_size);
+    return end_time;
+  }
 };
-
-// template<class System, class Condition>
-// std::pair<double, state_type>
-// find_condition(state_type &x0, System sys, Condition cond,
-//                const double t_start, const double t_end, const double dt,
-//                const double precision = 1E-6) {
-//
-//     // integrates an ODE until some threshold is crossed
-//     // returns time and state at the point of the threshold crossing
-//     // if no threshold crossing is found, some time > t_end is returned
-//
-//     auto stepper = make_dense_output(1.0e-6, 1.0e-6,
-//                                                              boost::numeric::odeint::runge_kutta_dopri5<state_type>());
-//
-//     auto ode_range = boost::numeric::odeint::make_adaptive_range(std::ref(stepper), sys, x0,
-//                                                                  t_start, t_end, dt);
-//
-//     // find the step where the condition changes
-//     auto found_iter = std::find_if(ode_range.first, ode_range.second, cond);
-//
-//     if(found_iter == ode_range.second)
-//     {
-//         // no threshold crossing -> return time after t_end and ic
-//         return std::make_pair(t_end + dt, x0);
-//     }
-//
-//     // the dense out stepper now covers the interval where the condition changes
-//     // improve the solution by bisection
-//     double t0 = stepper.previous_time();
-//     double t1 = stepper.current_time();
-//     double t_m;
-//     state_type x_m;
-//     // use odeint's resizing functionality to allocate memory for x_m
-//     boost::numeric::odeint::adjust_size_by_resizeability(x_m, x0,
-//                                                          typename boost::numeric::odeint::is_resizeable<state_type>::type());
-//     while(std::abs(t1 - t0) > precision) {
-//         t_m = 0.5 * (t0 + t1);  // get the mid point time
-//         stepper.calc_state(t_m, x_m); // obtain the corresponding state
-//         if (cond(x_m))
-//             t1 = t_m;  // condition changer lies before midpoint
-//         else
-//             t0 = t_m;  // condition changer lies after midpoint
-//     }
-//     // we found the interval of size eps, take it's midpoint as final guess
-//     t_m = 0.5 * (t0 + t1);
-//     stepper.calc_state(t_m, x_m);
-//     return std::make_pair(t_m, x_m);
-// }
-
-
+}
 
 
 #endif //INTEGRATOR_H

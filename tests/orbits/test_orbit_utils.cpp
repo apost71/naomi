@@ -15,14 +15,16 @@
 #include "orbits/keplerian.h"
 #include "orbits/orbits.h"
 
+using namespace naomi;
+using namespace naomi::orbits;
 TEST(TestOrbitUtils, CircularOrbitVelocity)
 {
   arma::vec3 r {6878000.0, 0.0, 0.0};
   arma::vec3 r2 {3900000.0, 3900000.0, 3900000.0};
 
-  state_vector s = get_circular_orbit(r);
+  pv_state_type s = get_circular_orbit(r);
   std::cout << s << "\n";
-  state_vector s2 = get_circular_orbit(r2);
+  pv_state_type s2 = get_circular_orbit(r2);
   std::cout << s2 << "\n";
 }
 
@@ -106,9 +108,9 @@ TEST(TestKeplerian, CircularOrbitFromKepOE)
   c.print("state = ");
 
   arma::vec3 r = {initial_r, 0, 0};
-  state_vector sv = get_circular_orbit(r);
-  sv.get_position().print("pos = ");
-  sv.get_velocity().print("vel = ");
+  pv_state_type sv = get_circular_orbit(r);
+  sv(arma::span(0, 2)).print("pos = ");
+  sv(arma::span(3, 5)).print("vel = ");
 }
 
 TEST(TestKeplerian, TestEccentricity)
@@ -117,4 +119,17 @@ TEST(TestKeplerian, TestEccentricity)
   arma::vec3 v = {3000, 4000, 5000};
   double e_m = keplerian_orbit::compute_eccentricity(r, v, constants::EARTH_MU);
   EXPECT_NEAR(e_m, 0.94754095, 1e-6);
+}
+
+TEST(TestKeplerian, TestInitFromSMA)
+{
+  const double initial_r = 6378000 + 250000;
+  const keplerian_orbit kep(initial_r);
+  const pv_state_type state = kep.to_cartesian();
+
+  const arma::vec3 expected_pos = {initial_r, 0, 0};
+  const pv_state_type expected_state = get_circular_orbit(expected_pos);
+  for (int i = 0; i < 6; i ++) {
+    EXPECT_NEAR(state[i], expected_state[i], 1e-10);
+  }
 }

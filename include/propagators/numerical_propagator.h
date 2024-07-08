@@ -2,35 +2,160 @@
 // Created by alex_ on 5/24/2024.
 //
 
-#ifndef COWELL_PROPAGATOR_H
-#define COWELL_PROPAGATOR_H
+#ifndef NUMERICAL_PROPAGATOR_H
+#define NUMERICAL_PROPAGATOR_H
 
 #include "integrators/integrator.h"
 #include "spacecraft/spacecraft.h"
-#include "systems/two_body.h"
+#include "forces/force_model.h"
 
-template <typename TStepper>
+namespace naomi::numeric
+{
+using namespace events;
+using namespace maneuvers;
+template <typename Stepper>
 class numerical_propagator
 {
+public:
+  numerical_propagator(const numerical_propagator& other)
+      : m_integrator(other.m_integrator)
+      , m_system(other.m_system)
+      , m_spacecrafts(other.m_spacecrafts)
+      , m_event_detectors(other.m_event_detectors)
+      , m_t(other.m_t)
+  {
+  }
+  numerical_propagator(numerical_propagator&& other) noexcept
+      : m_integrator(std::move(other.m_integrator))
+      , m_system(std::move(other.m_system))
+      , m_spacecrafts(std::move(other.m_spacecrafts))
+      , m_event_detectors(std::move(other.m_event_detectors))
+      , m_t(other.m_t)
+  {
+  }
+  numerical_propagator& operator=(const numerical_propagator& other)
+  {
+    if (this == &other)
+      return *this;
+    m_integrator = other.m_integrator;
+    m_system = other.m_system;
+    m_spacecrafts = other.m_spacecrafts;
+    m_event_detectors = other.m_event_detectors;
+    m_t = other.m_t;
+    return *this;
+  }
+  numerical_propagator& operator=(numerical_propagator&& other) noexcept
+  {
+    if (this == &other)
+      return *this;
+    m_integrator = std::move(other.m_integrator);
+    m_system = std::move(other.m_system);
+    m_spacecrafts = std::move(other.m_spacecrafts);
+    m_event_detectors = std::move(other.m_event_detectors);
+    m_t = other.m_t;
+    return *this;
+  }
 
-  integrator<TStepper> m_integrator;
-  two_body_system& m_system;
+private:
+  integrator<Stepper> m_integrator;
+  std::shared_ptr<force_model> m_system;
+  std::map<std::string, std::shared_ptr<spacecraft>> m_spacecrafts;
+  std::vector<std::shared_ptr<event_detector>> m_event_detectors = {};
   double m_t = 0.0;
+
 public:
   ~numerical_propagator() = default;
-  explicit numerical_propagator(two_body_system& system)
-      : m_system(system){}
+  numerical_propagator() = default;
 
-  numerical_propagator(const numerical_propagator&) = delete;
-  numerical_propagator(numerical_propagator&&) = delete;
-  auto operator=(const numerical_propagator&) -> numerical_propagator& = delete;
-  auto operator=(const numerical_propagator&&) -> numerical_propagator& = delete;
 
-  void propagate_by(double dt)
+
+  void initialize(const std::shared_ptr<force_model>& system, const std::map<std::string, std::shared_ptr<spacecraft>>& spacecrafts)
   {
-    m_integrator.integrate( m_system, m_system.get_state() , m_t , m_t + dt , 0.1 );
-    m_t += dt;
-  };
+    m_system = system;
+    m_spacecrafts = spacecrafts;
+    for (const auto & [fst, sc] : m_spacecrafts) {
+      if (sc->get_maneuver_plan() != nullptr) m_event_detectors.emplace_back(sc->get_maneuver_plan());
+    }
+  }
+
+  std::vector<std::shared_ptr<event_detector>> check_events(const state_and_time_type& prev, const state_and_time_type& curr, double t)
+  {
+    std::vector<std::shared_ptr<event_detector>> active_events;
+    for(const std::shared_ptr<event_detector>& e: m_event_detectors) {
+      if ((*e)(prev, curr)) {
+        active_events.push_back(e);
+      }
+    }
+    return active_events;
+  }
+
+  std::vector<double> get_integration_times(double t_start, double t_end)
+  {
+    std::vector<double> times;
+    double t_curr = t_start;
+    double t_step = 2;
+    while (t_curr + t_step < t_end) {
+      times.push_back(t_curr);
+      t_curr += t_step;
+    }
+    times.push_back(t_end);
+    return times;
+  }
+
+  void propagate_to(const std::shared_ptr<spacecraft>& spacecraft, double dt)
+  {
+    double end = dt;
+    auto times = get_integration_times(m_t, end);
+    for (std::size_t i = 0; i < times.size() - 1; i++) {
+      double start_t = times[i];
+      double end_t = times[i + 1];
+      state_and_time_type prev_state = {spacecraft->get_state(), start_t};
+      start_t = m_integrator.integrate( m_system, spacecraft->get_state() , start_t , end_t , 0.1 );
+      state_and_time_type new_state = {spacecraft->get_state(), start_t};
+      auto active_events = check_events(prev_state, new_state, start_t);
+      for (std::shared_ptr<event_detector> e: active_events) {
+        // TODO: This wont work with multiple events
+        auto event = m_integrator.find_event_time(m_system, times[i], times[i+1], e, prev_state, 0.1);
+        start_t = event.first;
+        spacecraft->set_state(event.second);
+        e->handle_event(spacecraft, start_t);
+        std::cout << "event occurred at: " << start_t << "state: " << spacecraft->get_state() << "\n";
+      }
+      m_integrator.integrate( m_system, spacecraft->get_state() , start_t , end_t , 0.1 );
+    }
+  }
+
+  double propagate_to(const double dt)
+  {
+    const double end = dt;
+    for (const auto & [scid, sc]: m_spacecrafts) {
+      propagate_to(sc, dt);
+    }
+    m_t = end;
+    return m_t;
+  }
+
+  void propagate_by(const std::shared_ptr<spacecraft>& spacecraft, double dt)
+  {
+    propagate_to(spacecraft, m_t + dt);
+  }
+
+  double propagate_by(const double dt)
+  {
+    return propagate_to(m_t + dt);
+  }
 };
 
-#endif //COWELL_PROPAGATOR_H
+
+
+typedef
+  boost::numeric::odeint::runge_kutta_dopri5<
+    pv_state_type,
+    double,
+    pv_state_type,
+    double,
+    boost::numeric::odeint::vector_space_algebra> rk_dopri5_stepper;
+}
+
+
+#endif //NUMERICAL_PROPAGATOR_H

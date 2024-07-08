@@ -7,6 +7,8 @@
 
 #include <armadillo>
 
+namespace naomi::orbits
+{
 class cartesian_orbit
 {
   arma::vec3 m_pos;
@@ -25,5 +27,6 @@ public:
     return m_vel;
   }
 };
+}
 
 #endif //CARTESIAN_ORBIT_H

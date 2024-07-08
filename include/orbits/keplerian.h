@@ -11,9 +11,11 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/tools/tuple.hpp>
-
+#include <boost/math/tools/roots.hpp>
 #include "integrators/integrator.h"
 
+namespace naomi::orbits
+{
 enum class AnomalyType{ TRUE, MEAN, ECCENTRIC };
 
 template <class T>
@@ -50,12 +52,12 @@ class keplerian_orbit
 public:
   keplerian_orbit(
     const double sma,
-    const double ecc,
-    const double inc,
-    const double raan,
-    const double aop,
-    const double anomaly,
-    const AnomalyType anomaly_type
+    const double ecc = 0,
+    const double inc = 0,
+    const double raan = 0,
+    const double aop = 0,
+    const double anomaly = 0,
+    const AnomalyType anomaly_type = AnomalyType::MEAN
     ): m_sma(sma), m_ecc(ecc), m_inc(inc), m_raan(raan), m_aop(aop),
         m_anomaly(anomaly), m_anomaly_type(anomaly_type) {}
 
@@ -120,7 +122,6 @@ public:
     auto v_r = dot(r/rn, v);
     fmt::print("rn = {}\nvn = {}\nv_r = {}\n\n", rn, vn, v_r);
 
-    auto v_p = sqrt(pow(vn, 2) - pow(v_r, 2));
     t h = cross(r, v);
     h.print("h = ");
     auto hn = norm(h);
@@ -137,7 +138,7 @@ public:
     return en;
   }
 
-  auto to_cartesian() -> arma::vec6
+  auto to_cartesian() const -> arma::vec6
   {
     auto psi = get_eccentric_anomaly();
     auto th = 2 * atan(sqrt((1 + m_ecc)/(1 - m_ecc)) * tan(psi/2));
@@ -161,19 +162,29 @@ public:
       {-sin(m_raan), cos(m_raan), 0},
       {0, 0, 1}
     };
-    auto o_pg = a * b * c;
-    auto o_gp = o_pg.t();
+    auto o_pg = (a * b * c).eval();
+    auto o_gp = o_pg.t().eval();
     arma::vec3 r_eci = o_gp * r_peri;
     arma::vec3 v_eci = o_gp * v_peri;
     return arma::join_cols(r_eci, v_eci);
   }
 
-  auto get_a() const -> double
+  [[nodiscard]] auto get_orbital_period() const -> double
+  {
+    return get_orbital_period(m_sma);
+  }
+
+  auto static get_orbital_period(const double sma) -> double
+  {
+    return 2.0*boost::math::double_constants::pi / sqrt(constants::EARTH_MU / pow(sma, 3));
+  }
+
+  [[nodiscard]] auto get_a() const -> double
   {
     return m_sma;
   }
 
-  auto get_i(bool degrees = true) const -> double
+  [[nodiscard]] auto get_i(bool degrees = true) const -> double
   {
     if (degrees) {
       return rad2deg(m_inc);
@@ -181,12 +192,12 @@ public:
     return m_inc;
   }
 
-  auto get_e() const -> double
+  [[nodiscard]] auto get_e() const -> double
   {
     return m_ecc;
   }
 
-  auto get_raan(bool degrees = true) const -> double
+  [[nodiscard]] auto get_raan(bool degrees = true) const -> double
   {
     if (degrees) {
       return rad2deg(m_raan);
@@ -194,7 +205,7 @@ public:
     return m_raan;
   }
 
-  auto get_aop(bool degrees = true) const -> double
+  [[nodiscard]] auto get_aop(bool degrees = true) const -> double
   {
     if (degrees) {
       return rad2deg(m_aop);
@@ -202,7 +213,7 @@ public:
     return m_aop;
   }
 
-  auto get_anomaly(bool degrees = true) const -> double
+  [[nodiscard]] auto get_anomaly(bool degrees = true) const -> double
   {
     if (degrees) {
       return rad2deg(m_anomaly);
@@ -210,12 +221,13 @@ public:
     return m_anomaly;
   }
 
-  auto get_eccentric_anomaly() const -> double
+  [[nodiscard]] auto get_eccentric_anomaly() const -> double
   {
     if (m_anomaly_type == AnomalyType::MEAN) {
       int digits = std::numeric_limits<double>::digits; // Maximum possible binary digits accuracy for type T.
       return boost::math::tools::newton_raphson_iterate(eccentric_anomaly_functor<double>(m_ecc, m_anomaly), 0.1, -2*boost::math::double_constants::pi, 2*boost::math::double_constants::pi, digits);
-    } else if (m_anomaly_type == AnomalyType::TRUE) {
+    }
+    if (m_anomaly_type == AnomalyType::TRUE) {
       auto tan_psi = sqrt((1 - m_ecc ) / (1 + m_ecc))  * tan(m_anomaly/2);
       auto psi = atan(tan_psi) * 2;
       return psi;
@@ -234,14 +246,14 @@ public:
     return deg * (boost::math::double_constants::pi/180.0);
   }
 
-  auto to_vec(bool degrees = false) const -> arma::vec6 {
+  [[nodiscard]] auto to_vec(bool degrees = false) const -> arma::vec6 {
     if (degrees) {
       return {m_sma, m_ecc, rad2deg(m_inc), rad2deg(m_raan), rad2deg(m_aop), rad2deg(m_anomaly)};
     }
     return {m_sma, m_ecc, m_inc, m_raan, m_aop, m_anomaly};
   }
 
-  auto fn(const double& psi) -> boost::math::tuple<double, double> {
+  [[nodiscard]] auto fn(const double& psi) const -> boost::math::tuple<double, double> {
     return boost::math::make_tuple(
       psi - m_ecc*sin(psi) - m_anomaly,
       1 - m_ecc * cos(psi)
@@ -258,8 +270,7 @@ public:
       && m_aop == other.m_aop
       && m_anomaly == other.m_anomaly;
   }
-
-
 };
+}
 
 #endif //KEPLERIAN_H

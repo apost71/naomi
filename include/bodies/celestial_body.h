@@ -10,8 +10,10 @@
 #include <armadillo>
 
 #include <symengine/lambda_double.h>
+#include <symengine/llvm_double.h>
 
-
+namespace naomi::bodies
+{
 class celestial_body
 {
 protected:
@@ -23,9 +25,9 @@ protected:
   SymEngine::RCP<const SymEngine::Basic> m_potential_partial_x;
   SymEngine::RCP<const SymEngine::Basic> m_potential_partial_y;
   SymEngine::RCP<const SymEngine::Basic> m_potential_partial_z;
-  SymEngine::LambdaRealDoubleVisitor m_potential_partial_x_visitor;
-  SymEngine::LambdaRealDoubleVisitor m_potential_partial_y_visitor;
-  SymEngine::LambdaRealDoubleVisitor m_potential_partial_z_visitor;
+  SymEngine::LLVMDoubleVisitor m_potential_partial_x_visitor;
+  SymEngine::LLVMDoubleVisitor m_potential_partial_y_visitor;
+  SymEngine::LLVMDoubleVisitor m_potential_partial_z_visitor;
 
 public:
   explicit celestial_body(const double mu, const double soi, const double eq_radius, const std::initializer_list<double> higher_order_terms = {}): m_mu(mu), m_soi(soi), m_eq_radius(eq_radius), m_higher_order_terms(higher_order_terms)
@@ -90,4 +92,5 @@ public:
     return m_soi;
   }
 };
+}
 #endif //CELESTIAL_BODY_H

@@ -9,19 +9,19 @@
 
 #include "spacecraft/state_vector.h"
 
-arma::mat33 eci2ric(arma::vec3 r, arma::vec3 v)
+inline arma::mat33 eci2ric(arma::vec3 r, arma::vec3 v)
 {
   auto rn = normalise(r);
   auto vn = normalise(v);
   auto h = cross(r, v);
   auto c = normalise(h);
-  auto i = cross(c, rn);
+  auto i = normalise(cross(c, rn));
   return arma::join_rows(rn, i, c);
 }
 
-arma::mat33 eci2ric(state_vector& sv)
+inline arma::mat33 eci2ric(pv_state_type& sv)
 {
-  return eci2ric(sv.get_position(), sv.get_velocity());
+  return eci2ric(sv(arma::span(0, 2)), sv(arma::span(3, 5)));
 }
 
 #endif //TRANSFORMS_H

@@ -13,18 +13,19 @@
 // #define EARTH_MU (3.986004418*10e14)
 // // #define EARTH_MU (3.9800000*10e14)
 
-namespace constants
+namespace naomi::constants
 {
-  constexpr double EARTH_MU = 3.986004418*1e14;
-  constexpr double EARTH_MU_KM = 3.986004418*1e5;
-  const arma::vec3 PLUS_I({1, 0, 0});
-  const arma::vec3 PLUS_J({0, 1, 0});
-  const arma::vec3 PLUS_K({0, 0, 1});
-  const arma::vec3 MINUS_I({-1, 0, 0});
-  const arma::vec3 MINUS_J({0, -1, 0});
-  const arma::vec3 MINUS_K({0, 0, -1});
+constexpr double EARTH_MU = 3.986004418*1e14;
+constexpr double EARTH_MU_KM = 3.986004418*1e5;
+const arma::vec3 PLUS_I({1, 0, 0});
+const arma::vec3 PLUS_J({0, 1, 0});
+const arma::vec3 PLUS_K({0, 0, 1});
+const arma::vec3 MINUS_I({-1, 0, 0});
+const arma::vec3 MINUS_J({0, -1, 0});
+const arma::vec3 MINUS_K({0, 0, -1});
 
 }
+
 
 
 // #define EARTH_MU 398600.4418

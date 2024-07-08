@@ -1,0 +1,34 @@
+//
+// Created by alex on 7/6/2024.
+//
+#include <gtest/gtest.h>
+
+#include "bodies/celestial_body.h"
+#include "bodies/earth.h"
+#include "forces/two_body_force_model.h"
+#include "orbits/orbits.h"
+#include "propagators/numerical_propagator.h"
+#include "simulation/simulation.h"
+#include "systems/system.h"
+
+using namespace naomi;
+using namespace naomi::numeric;
+using namespace naomi::observers;
+using namespace naomi::orbits;
+using namespace naomi::bodies;
+using namespace naomi::forces;
+TEST(TestSimulation, TestSimulationInitialization)
+{
+  arma::vec r {3900000.0, 3900000.0, 3900000.0};
+  pv_state_type state_vec = get_circular_orbit(r);
+  std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
+  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
+
+  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  typedef numerical_propagator<rk_dopri5_stepper> propagator;
+  typedef physical_system<propagator> system_t;
+  auto system = std::make_shared<system_t>(system_t(sc, two_body_forces));
+  auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/test_simulation.csv"));
+  simulation<system_t> sim(system, {file_observer});
+  sim.simulate(60*60*24);
+}
