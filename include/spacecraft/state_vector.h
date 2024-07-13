@@ -10,6 +10,8 @@
 #include <fmt/ostream.h>
 #include <naomi.h>
 
+
+using namespace naomi;
 // class state_vector
 // {
 //   arma::vec3 m_position;
@@ -377,14 +379,43 @@ namespace boost {
 namespace numeric {
 namespace odeint {
 template<>
-struct vector_space_norm_inf<pv_state_type> {
+struct vector_space_norm_inf<state_type> {
   typedef double result_type;
 
-  result_type operator()(const pv_state_type& s) const {
+  result_type operator()(const state_type& s) const {
     return arma::norm(s, "inf");
   }
 };
 }}}
+
+namespace boost { namespace numeric { namespace odeint {
+
+template <>
+struct is_resizeable<arma::vec>
+{
+    typedef boost::true_type type;
+    const static bool value = type::value;
+};
+
+template <>
+struct same_size_impl<arma::vec, arma::vec>
+{
+    static bool same_size(const arma::vec& x, const arma::vec& y)
+    {
+        return x.size() == y.size();   // or use .n_elem attributes
+    }
+};
+
+template<>
+struct resize_impl<arma::vec, arma::vec>
+{
+    static void resize(arma::vec &v1, const arma::vec& v2)
+    {
+        v1.resize(v2.size());     // not sure if this is correct for arma
+    }
+};
+
+} } } // namespace boost::numeric::odeint
 
 // typedef combined_state_vector state_type;
 //

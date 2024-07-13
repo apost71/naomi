@@ -83,7 +83,7 @@ TEST(HigherOrderGravityTest, PartialDerivative)
 TEST(NumericalPropagatorTest, CircularOrbitPropagation)
 {
   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-  pv_state_type state_vec = get_circular_orbit(r);
+  state_type state_vec = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
 
@@ -118,7 +118,7 @@ TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
 {
   arma::vec3 r = {1000000, 5000000, 7000000};
   arma::vec3 v = {3000, 4000, 5000};
-  pv_state_type state = join_cols(r, v);
+  state_type state = join_cols(r, v);
   // state_type state = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   std::vector<spacecraft> spacecrafts;

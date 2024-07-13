@@ -26,7 +26,7 @@ TEST(TestHohmann, TestDeltaV)
   const double initial_r = 6378000 + 250000;
   const double target_r = 42164154.0;
   const arma::vec3 r = {initial_r, 0, 0};
-  const pv_state_type sv = get_circular_orbit(r);
+  const state_type sv = get_circular_orbit(r);
   hohmann_transfer ht(sv, target_r);
   const auto mp = ht.get_maneuver_plan();
 
@@ -61,7 +61,7 @@ TEST(TestHohmann, TestPropagation)
   double initial_r = 6378000 + 250000;
   double target_r = 42164154.0;
   arma::vec3 r = {initial_r, 0, 0};
-  pv_state_type state_vec = get_circular_orbit(r);
+  state_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
   auto mp = ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(initial_r));
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
@@ -98,7 +98,7 @@ TEST(TestHohmann, TestPropagationInclined)
   // double initial_r = 6378000 + 250000;
   double target_r = 42164154.0;
   arma::vec3 r = {3900000.0, 3900000.0, 3900000.0};
-  pv_state_type state_vec = get_circular_orbit(r);
+  state_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
   auto mp = ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(norm(r)));
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
@@ -135,7 +135,7 @@ TEST(TestBiEllipticHohmann, TestSomethingElse)
   double initial_r = 7000000;
   double target_r = 105000000;
   arma::vec3 r = {initial_r, 0, 0};
-  pv_state_type state_vec = get_circular_orbit(r);
+  state_type state_vec = get_circular_orbit(r);
   bielliptic_hohmann_transfer ht(initial_r, target_r, target_r*2);
   auto mp = ht.get_maneuver_plan(0);
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
@@ -156,7 +156,7 @@ TEST(TestBiEllipticHohmann, TestSomethingElse)
 
   double t = 0.0;
   std::cout << "Starting propagation..\n";
-  while (t < 60.0*60.0*190) {
+  while (t < 60.0*60.0*240) {
     system.simulate_by(10.0);
     curr_state = sc->get_state();
     // std::cout << t << "\n";

@@ -16,6 +16,8 @@ namespace naomi::numeric
 using namespace events;
 using namespace forces;
 
+typedef std::function<void(const state_type&, state_type&, double)> system_t;
+
 template< class Stepper>
 class integrator
 {
@@ -50,15 +52,14 @@ public:
   ~ integrator() = default;
   integrator() = default;
 
-  std::pair<double, pv_state_type> find_event_time(const std::shared_ptr<force_model>& force_model, double start_time, double end_time, std::shared_ptr<event_detector> e, state_and_time_type state, double step_size)
+  std::pair<double, state_type> find_event_time(const system_t& system, double start_time, double end_time, std::shared_ptr<event_detector> e, state_and_time_type state, double step_size)
   {
     auto stepper = make_dense_output(1.0e-6, 1.0e-6, Stepper());
-    auto system = make_system(force_model);
-    pv_state_type s = state.first;
+    state_type s = state.first;
     stepper.initialize(s, start_time, end_time-start_time);
     stepper.do_step(system);
     double mid_time;
-    pv_state_type next_state = s;
+    state_type next_state = s;
     while(std::abs(end_time - start_time) > 1e-6) {
       mid_time = 0.5 * (start_time + end_time);  // get the mid point time
       stepper.calc_state(mid_time, next_state); // obtain the corresponding state
@@ -77,14 +78,8 @@ public:
     return {mid_time, s};
   }
 
-  auto make_system(const std::shared_ptr<force_model>& force_model)
+  double integrate(const system_t& system, state_type& state, double start_time, double end_time, double step_size)
   {
-    return [force_model](const pv_state_type& x, pv_state_type& dxdt, double t){(*force_model)(x, dxdt, t);};
-  }
-
-  double integrate(const std::shared_ptr<force_model>& force_model, pv_state_type& state, double start_time, double end_time, double step_size)
-  {
-    auto system = make_system(force_model);
     integrate_const(m_stepper, system, state, start_time, end_time, step_size);
     return end_time;
   }

@@ -89,6 +89,11 @@ public:
     return active_events;
   }
 
+  auto make_system(const std::shared_ptr<force_model>& force_model)
+  {
+    return [force_model](const auto& x, auto& dxdt, double t){(*force_model)(x, dxdt, t);};
+  }
+
   std::vector<double> get_integration_times(double t_start, double t_end)
   {
     std::vector<double> times;
@@ -104,24 +109,30 @@ public:
 
   void propagate_to(const std::shared_ptr<spacecraft>& spacecraft, double dt)
   {
+    auto system = make_system(m_system);
     double end = dt;
     auto times = get_integration_times(m_t, end);
     for (std::size_t i = 0; i < times.size() - 1; i++) {
       double start_t = times[i];
       double end_t = times[i + 1];
-      state_and_time_type prev_state = {spacecraft->get_state(), start_t};
-      start_t = m_integrator.integrate( m_system, spacecraft->get_state() , start_t , end_t , 0.1 );
-      state_and_time_type new_state = {spacecraft->get_state(), start_t};
+      state_type state = join_cols(spacecraft->get_state(), spacecraft->get_attitude());
+      state_and_time_type prev_state = {state, start_t};
+      start_t = m_integrator.integrate( system, state , start_t , end_t , 0.1 );
+      state_and_time_type new_state = {state, start_t};
       auto active_events = check_events(prev_state, new_state, start_t);
       for (std::shared_ptr<event_detector> e: active_events) {
         // TODO: This wont work with multiple events
-        auto event = m_integrator.find_event_time(m_system, times[i], times[i+1], e, prev_state, 0.1);
+        auto event = m_integrator.find_event_time(system, times[i], times[i+1], e, prev_state, 0.1);
         start_t = event.first;
-        spacecraft->set_state(event.second);
+        spacecraft->set_state(event.second(arma::span(0, 5)));
+        spacecraft->set_attitude(event.second(arma::span(6, 8)));
         e->handle_event(spacecraft, start_t);
-        std::cout << "event occurred at: " << start_t << "state: " << spacecraft->get_state() << "\n";
+        state = join_cols(spacecraft->get_state(), spacecraft->get_attitude());
+        std::cout << "event occurred at: " << start_t << "state: " << state << "\n";
       }
-      m_integrator.integrate( m_system, spacecraft->get_state() , start_t , end_t , 0.1 );
+      m_integrator.integrate( system, state , start_t , end_t , 0.1 );
+      spacecraft->set_state(state(arma::span(0, 5)));
+      spacecraft->set_attitude(state(arma::span(6, 9)));
     }
   }
 
@@ -150,9 +161,9 @@ public:
 
 typedef
   boost::numeric::odeint::runge_kutta_dopri5<
-    pv_state_type,
+    state_type,
     double,
-    pv_state_type,
+    state_type,
     double,
     boost::numeric::odeint::vector_space_algebra> rk_dopri5_stepper;
 }

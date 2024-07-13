@@ -18,7 +18,12 @@
 // NAOMI_EXPORT void naomi();
 // NAOMI_EXPORT void naomi_print_vector(const std::vector<std::string> &strings);
 
+namespace naomi
+{
+typedef arma::vec state_type;
 typedef arma::vec6 pv_state_type;
 typedef arma::vec9 pva_state_type;
+typedef arma::vec4 quaternion_type;
 typedef arma::vec::fixed<10> pv_rot_state_type;
 typedef arma::vec::fixed<13> pva_rot_state_type;
+}

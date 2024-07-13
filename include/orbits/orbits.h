@@ -11,7 +11,7 @@
 
 namespace naomi::orbits
 {
-inline pv_state_type get_circular_orbit(const arma::vec3& initial_position, const double mu = constants::EARTH_MU)
+inline state_type get_circular_orbit(const arma::vec3& initial_position, const double mu = constants::EARTH_MU)
 {
   const double vn = sqrt(mu / norm(initial_position));
   const arma::vec k_hat {0.0, 0.0, 1.0};

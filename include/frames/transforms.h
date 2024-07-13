@@ -19,7 +19,7 @@ inline arma::mat33 eci2ric(arma::vec3 r, arma::vec3 v)
   return arma::join_rows(rn, i, c);
 }
 
-inline arma::mat33 eci2ric(pv_state_type& sv)
+inline arma::mat33 eci2ric(const state_type& sv)
 {
   return eci2ric(sv(arma::span(0, 2)), sv(arma::span(3, 5)));
 }

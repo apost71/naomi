@@ -55,7 +55,7 @@ public:
   void initialize(const std::shared_ptr<system_t>& system) override
   {
     m_fout.open(m_filepath, m_openmode);
-    m_fout << "scid,x,y,z,vx,vy,vz\n";
+    m_fout << "scid,x,y,z,vx,vy,vz,q0,q1,q2,q3\n";
     this->observe_state(system);
   }
 
@@ -64,9 +64,11 @@ public:
     auto spacecrafts = system->get_spacecrafts();
     for (auto i = spacecrafts.begin(); i != spacecrafts.end(); i++) {
       auto state = i->second->get_state();
+      auto attitude = i->second->get_attitude();
       m_fout << i->first << ",";
       m_fout << state[0]  << "," << state[1] << "," << state[2] << ",";
-      m_fout << state[3]  << "," << state[4] << "," << state[5] << "\n";
+      m_fout << state[3]  << "," << state[4] << "," << state[5] << ",";
+      m_fout << attitude[0] << "," << attitude[1] << "," << attitude[2] << "," << attitude[3] << "\n";
     }
   }
 

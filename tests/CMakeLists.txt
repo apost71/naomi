@@ -14,7 +14,8 @@ add_executable(test_naomi test_naomi.cpp
         frames/test_frame_transforms.cpp
         boost_examples.cpp
         simulation/test_simulation.cpp
-        observers/test_observer.cpp)
+        observers/test_observer.cpp
+        attitude/test_torque_free.cpp)
 target_link_libraries(test_naomi naomi GTest::gtest GTest::gtest_main)
 
 include(GoogleTest)

@@ -14,7 +14,7 @@ namespace naomi::events
 {
 enum EventDetectorTrigger {INCREASING, DECREASING, ALL};
 
-typedef std::pair<pv_state_type, double> state_and_time_type;
+typedef std::pair<state_type, double> state_and_time_type;
 
 class event_detector
 {

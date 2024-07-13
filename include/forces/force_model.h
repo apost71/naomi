@@ -13,10 +13,11 @@ class force_model
 {
 
 public:
-  virtual void operator()( const pv_state_type& x , pv_state_type& dxdt, double t) const = 0;
+  virtual void operator()( const state_type& x , state_type& dxdt, double t) const = 0;
   virtual ~force_model() = default;
 
 };
+
 }
 
 #endif //FORCE_MODEL_H

@@ -17,13 +17,13 @@ namespace naomi::maneuvers
 using namespace orbits;
 class hohmann_transfer
 {
-  pv_state_type m_initial_state;
+  state_type m_initial_state;
   double m_target_radius;
   std::vector<double> m_dvs;
   double m_transit_time;
 
 public:
-  hohmann_transfer(const pv_state_type& initial_state, double target_radius ):
+  hohmann_transfer(const state_type& initial_state, double target_radius ):
     m_initial_state(initial_state), m_target_radius(target_radius)
   {
     auto r = m_initial_state(arma::span(0, 2));
@@ -98,7 +98,7 @@ class bielliptic_hohmann_transfer
   std::vector<double> m_dvs;
 
 public:
-  bielliptic_hohmann_transfer(pv_state_type& initial_state, double target_sma, double transfer_magnitude)
+  bielliptic_hohmann_transfer(state_type& initial_state, double target_sma, double transfer_magnitude)
   {
     auto r = initial_state(arma::span(0, 2));
     auto v = initial_state(arma::span(3, 5));
