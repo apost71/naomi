@@ -27,13 +27,13 @@ enum RotationOrder
 
 class euler_angles: public rotation
 {
-  int m_first;
-  int m_second;
-  int m_third;
+  double m_alpha;
+  double m_beta;
+  double m_gamma;
 
 public:
-  euler_angles(const int first, const int second, const int third):
-    m_first(first), m_second(second), m_third(third){}
+  euler_angles(const double alpha, const double beta, const double gamma):
+    m_alpha(alpha), m_beta(beta), m_gamma(gamma){}
   std::shared_ptr<rotation> apply_to(
       const std::shared_ptr<rotation>& r) override;
   arma::vec3 apply_to(const arma::vec3& r) override;
