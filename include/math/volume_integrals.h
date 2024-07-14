@@ -340,8 +340,10 @@ void compVolumeIntegrals(POLYHEDRON *p)
    ============================================================================
 */
 
-
-int main(int argc, char *argv[])
+/**
+*
+*/
+int main_test(int argc, char *argv[])
 {
   POLYHEDRON p;
   double density, mass;
@@ -405,5 +407,4 @@ int main(int argc, char *argv[])
   printf("%+15.6f  %+15.6f  %+15.6f\n\n", J[Z][X], J[Z][Y], J[Z][Z]);
 
 }
-
 #endif //VOLUME_INTEGRALS_H

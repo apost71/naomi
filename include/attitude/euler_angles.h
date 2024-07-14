@@ -9,7 +9,7 @@
 namespace naomi::attitude
 {
 
-enum RotationOrder
+enum rotation_order
 {
   XYZ = std::array<int, 3>{1, 2, 3},
   XYX = std::array<int, 3>{1, 2, 1},
@@ -30,15 +30,20 @@ class euler_angles: public rotation
   double m_alpha;
   double m_beta;
   double m_gamma;
+  rotation_order m_rotation_order;
 
 public:
-  euler_angles(const double alpha, const double beta, const double gamma):
-    m_alpha(alpha), m_beta(beta), m_gamma(gamma){}
+  euler_angles(const double alpha, const double beta, const double gamma, const rotation_order order):
+    m_alpha(alpha), m_beta(beta), m_gamma(gamma), m_rotation_order(order){}
   std::shared_ptr<rotation> apply_to(
       const std::shared_ptr<rotation>& r) override;
   arma::vec3 apply_to(const arma::vec3& r) override;
   arma::mat33 get_dcm() override
   {
+    // const auto rot1 = get_axis_rotation(m_rotation_order[0], m_alpha);
+    // const auto rot2 = get_axis_rotation(m_rotation_order[1], m_beta);
+    // const auto rot3 = get_axis_rotation(m_rotation_order[2], m_gamma);
+    // return rot1*rot2*rot3;
 
   }
 

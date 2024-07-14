@@ -16,6 +16,7 @@ using namespace math;
 class torque_free_attitude final : public attitude_law
 {
 public:
+  explicit torque_free_attitude(const state_type& attitude): attitude_law(attitude){}
 
   [[nodiscard]] state_type get_derivative(
       const state_type& state) const override
@@ -28,11 +29,6 @@ public:
     const quaternion_type q_state = state(arma::span(6, 9));
     state_type res = (0.5 * q_skew(q_state) * w4);
     return res;
-  }
-
-  [[nodiscard]] std::size_t get_size() const override
-  {
-    return 4;
   }
 };
 }

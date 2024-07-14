@@ -107,6 +107,18 @@ public:
     return times;
   }
 
+  auto get_initial_state(const std::shared_ptr<spacecraft>& spacecraft)
+  {
+    std::size_t size = 6;
+    arma::vec states = {spacecraft->get_state()};
+    for (const auto& p: spacecraft->get_additional_state_providers()) {
+      size += p->get_size();
+      states = join_cols(states, p->get_state());
+    }
+
+    return states;
+  }
+
   void propagate_to(const std::shared_ptr<spacecraft>& spacecraft, double dt)
   {
     auto system = make_system(m_system);

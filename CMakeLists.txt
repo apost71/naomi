@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.25)
-project(naomi CXX)
+cmake_minimum_required(VERSION 3.22)
+project(naomi C CXX)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
@@ -49,7 +49,8 @@ add_library(naomi src/naomi.cpp
         include/math/vector_utils.h
         include/math/volume_integrals.h
         include/attitude/rotation.h
-        include/attitude/euler_angles.h)
+        include/attitude/euler_angles.h
+        include/spacecraft/body_shape.h)
 include_directories(${SYMENGINE_INCLUDE_DIRS})
 target_include_directories(naomi PUBLIC include )
 target_link_libraries(naomi
@@ -71,5 +72,5 @@ endif()
 install(TARGETS naomi)
 
 #if(BUILD_EXAMPLES)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 #endif()

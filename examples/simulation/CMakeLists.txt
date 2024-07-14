@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.25)
-project(naomi-simulation LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.22)
+project(naomi-simulation LANGUAGES C CXX)
 
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
 

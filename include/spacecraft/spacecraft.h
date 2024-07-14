@@ -6,6 +6,7 @@
 #define SPACECRAFT_H
 #include <utility>
 
+#include "attitude/attitude_law.h"
 #include "frames/transforms.h"
 #include "maneuvers/maneuver_plan.h"
 
@@ -20,6 +21,7 @@ class spacecraft
   double m_mass;
   std::vector<std::shared_ptr<spacecraft_controller>> m_controllers;
   std::shared_ptr<maneuvers::maneuver_plan> m_maneuver_plan;
+  std::shared_ptr<attitude::attitude_law> m_attitude_law;
 
 public:
   spacecraft(std::string identifier, state_type state, const double& mass):
@@ -27,18 +29,19 @@ public:
     m_state(std::move(state)),
     m_mass(mass) {}
 
-  spacecraft(std::string identifier, state_type state, const quaternion_type& attitude, const double& mass):
+  spacecraft(std::string identifier, state_type state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<attitude::attitude_law>& attitude_law):
     m_identifier(std::move(identifier)),
     m_state(std::move(state)),
     m_attitude(attitude),
-    m_mass(mass) {}
+    m_mass(mass),
+    m_attitude_law(attitude_law) {}
 
 
   spacecraft(std::string identifier, state_type state, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
     m_identifier(std::move(identifier)), m_state(std::move(state)), m_mass(mass), m_maneuver_plan(mp) {}
 
   spacecraft(std::string identifier, state_type state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
-  m_identifier(std::move(identifier)), m_state(std::move(state)), m_attitude(attitude), m_mass(mass), m_maneuver_plan(mp) {}
+    m_identifier(std::move(identifier)), m_state(std::move(state)), m_attitude(attitude), m_mass(mass), m_maneuver_plan(mp) {}
 
   auto get_state() -> state_type&
   {
@@ -48,6 +51,11 @@ public:
   auto get_attitude() -> quaternion_type&
   {
     return m_attitude;
+  }
+
+  auto get_additional_state_providers() -> std::vector<std::shared_ptr<attitude::additional_state_provider>>
+  {
+    return { m_attitude_law };
   }
 
   [[nodiscard]] auto get_identifier() const -> std::string

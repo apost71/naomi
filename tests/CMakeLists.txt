@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.22)
 project(NaomiTest CXX)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -15,7 +15,8 @@ add_executable(test_naomi test_naomi.cpp
         boost_examples.cpp
         simulation/test_simulation.cpp
         observers/test_observer.cpp
-        attitude/test_torque_free.cpp)
+        attitude/test_torque_free.cpp
+        attitude/test_euler_angles.cpp)
 target_link_libraries(test_naomi naomi GTest::gtest GTest::gtest_main)
 
 include(GoogleTest)
