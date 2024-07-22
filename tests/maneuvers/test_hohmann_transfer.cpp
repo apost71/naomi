@@ -159,7 +159,6 @@ TEST(TestBiEllipticHohmann, TestSomethingElse)
   while (t < 60.0*60.0*240) {
     system.simulate_by(10.0);
     curr_state = sc->get_state();
-    // std::cout << t << "\n";
     fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
     fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
     t += 10.0;

@@ -4,7 +4,7 @@
 
 #ifndef TWO_BODY_FORCE_MODEL_H
 #define TWO_BODY_FORCE_MODEL_H
-#include "attitude/attitude_law.h"
+#include "attitude/attitude_provider.h"
 #include "bodies/celestial_body.h"
 #include "force_model.h"
 
@@ -42,15 +42,6 @@ public:
     arma::vec3 rddot = -1.0 * m_central_body->get_potential_partial(pos);
     dxdt(arma::span(0, 2)) = vel;
     dxdt(arma::span(3, 5)) = rddot;
-    std::size_t start_idx = 5;
-    for (const auto& addl_states: m_additional_state_providers) {
-      const auto size = addl_states->get_size();
-      const auto end_idx = start_idx + size;
-      auto state = x(arma::span(start_idx + 1, end_idx));
-      const auto d_state = addl_states->get_derivative(x);
-      dxdt(arma::span(start_idx + 1, end_idx)) = d_state;
-      start_idx = end_idx;
-    }
   }
 };
 }

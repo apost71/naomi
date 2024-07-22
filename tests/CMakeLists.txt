@@ -16,7 +16,8 @@ add_executable(test_naomi test_naomi.cpp
         simulation/test_simulation.cpp
         observers/test_observer.cpp
         attitude/test_torque_free.cpp
-        attitude/test_euler_angles.cpp)
+        attitude/test_euler_angles.cpp
+        spacecraft/test_body_shape.cpp)
 target_link_libraries(test_naomi naomi GTest::gtest GTest::gtest_main)
 
 include(GoogleTest)

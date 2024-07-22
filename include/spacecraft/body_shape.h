@@ -16,15 +16,17 @@
 #define SQR(x) ((x)*(x))
 #define CUBE(x) ((x)*(x)*(x))
 
+#include <armadillo>
 #include <array>
 #include <cstddef>
 #include <utility>
 #include <vector>
-#include <armadillo>
+
+#include <fmt/core.h>
 
 #include "math/volume_integrals.h"
 
-namespace naomi::spacecraft::geometry
+namespace naomi::geometry
 {
 
 struct face
@@ -36,19 +38,6 @@ struct face
   face(std::vector<int> v, const double w, const arma::vec3& normal):
     verts(std::move(v)), w(w), norm(normal){}
 };
-
-static int A;   /* alpha */
-static int B;   /* beta */
-static int C;   /* gamma */
-
-/* projection integrals */
-static double P1, Pa, Pb, Paa, Pab, Pbb, Paaa, Paab, Pabb, Pbbb;
-
-/* face integrals */
-static double Fa, Fb, Fc, Faa, Fbb, Fcc, Faaa, Fbbb, Fccc, Faab, Fbbc, Fcca;
-
-/* volume integrals */
-static double T0, T1[3], T2[3], TP[3];
 
 class body_shape
 {
@@ -79,7 +68,7 @@ public:
     compute_volume_integrals();
   }
 
-  arma::vec3 get_center_of_mass() const {
+  [[nodiscard]] arma::vec3 get_center_of_mass() const {
     return T1/T0;
   }
 
@@ -87,27 +76,28 @@ public:
   {
     auto r = get_center_of_mass();
     arma::mat33 J;
+    double mass = m_density * T0;
 
     /* compute inertia tensor */
-    J[X, X] = m_density * (T2[Y] + T2[Z]);
-    J[Y, Y] = m_density * (T2[Z] + T2[X]);
-    J[Z, Z] = m_density * (T2[X] + T2[Y]);
-    J[X, Y] = J[Y, X] = - m_density * TP[X];
-    J[Y, Z] = J[Z, Y] = - m_density * TP[Y];
-    J[Z, X] = J[X, Z] = - m_density * TP[Z];
+    J(X, X) = m_density * (T2[Y] + T2[Z]);
+    J(Y, Y) = m_density * (T2[Z] + T2[X]);
+    J(Z, Z) = m_density * (T2[X] + T2[Y]);
+    J(X, Y) = J(Y, X) = - m_density * TP[X];
+    J(Y, Z) = J(Z, Y) = - m_density * TP[Y];
+    J(Z, X) = J(X, Z) = - m_density * TP[Z];
 
     /* translate inertia tensor to center of mass */
-    J[X, X] -= m_mass * (r[Y]*r[Y] + r[Z]*r[Z]);
-    J[Y, Y] -= m_mass * (r[Z]*r[Z] + r[X]*r[X]);
-    J[Z, Z] -= m_mass * (r[X]*r[X] + r[Y]*r[Y]);
-    J[X, Y] = J[Y, X] += m_mass * r[X] * r[Y];
-    J[Y, Z] = J[Z, Y] += m_mass * r[Y] * r[Z];
-    J[Z, X] = J[X, Z] += m_mass * r[Z] * r[X];
+    J(X, X) -= mass * (r[Y]*r[Y] + r[Z]*r[Z]);
+    J(Y, Y) -= mass * (r[Z]*r[Z] + r[X]*r[X]);
+    J(Z, Z) -= mass * (r[X]*r[X] + r[Y]*r[Y]);
+    J(X, Y) = J(Y, X) += mass * r[X] * r[Y];
+    J(Y, Z) = J(Z, Y) += mass * r[Y] * r[Z];
+    J(Z, X) = J(X, Z) += mass * r[Z] * r[X];
 
     return J;
   }
 
-  static body_shape make_rectangle(double l, double w, double h, const arma::vec3& origin = {0, 0, 0}, const double mass)
+  static body_shape make_rectangle(double l, double w, double h, const double mass, const arma::vec3& origin = {0, 0, 0})
   {
     double a = l/2;
     double b = w/2;
@@ -145,24 +135,9 @@ private:
       /* compute face normal and offset w from first 3 vertices */
       const arma::vec3 dv1 = m_verts[f[1]] - m_verts[f[0]];
       const arma::vec3 dv2 = m_verts[f[2]] - m_verts[f[1]];
-      // const double dx1 = m_verts[f[1]][X] - m_verts[f[0]][X];
-      // const double dy1 = m_verts[f[1]][Y] - m_verts[f[0]][Y];
-      // const double dz1 = m_verts[f[1]][Z] - m_verts[f[0]][Z];
-      // const double dx2 = m_verts[f[2]][X] - m_verts[f[1]][X];
-      // const double dy2 = m_verts[f[2]][Y] - m_verts[f[1]][Y];
-      // const double dz2 = m_verts[f[2]][Z] - m_verts[f[1]][Z];
-      // const double nx = dy1 * dz2 - dy2 * dz1;
-      // const double ny = dz1 * dx2 - dz2 * dx1;
-      // const double nz = dx1 * dy2 - dx2 * dy1;
       const arma::vec3 normal_vec = cross(dv1, dv2);
-      // const double len = sqrt(nx * nx + ny * ny + nz * nz);
-      // const arma::vec3 n = {
-      //   nx / len,
-      //   ny / len,
-      //   nz / len
-      // };
       const arma::vec3 normal = normalise(normal_vec);
-      const double w = - dot(normal, m_verts[f[0]]);
+      const double w = -dot(normal, m_verts[f[0]]);
       m_faces.emplace_back(f, w, normal);
     }
   }
@@ -288,10 +263,9 @@ private:
       TP[B] += f.norm[B] * Fbbc;
       TP[C] += f.norm[C] * Fcca;
     }
-
-    T1[X] /= 2; T1[Y] /= 2; T1[Z] /= 2;
-    T2[X] /= 3; T2[Y] /= 3; T2[Z] /= 3;
-    TP[X] /= 2; TP[Y] /= 2; TP[Z] /= 2;
+    T1 /= 2.0;
+    T2 /= 3.0;
+    TP /= 2.0;
   }
 };
 }

@@ -9,6 +9,17 @@
 namespace naomi
 {
 using namespace observers;
+
+template<typename state_t>
+class simulation_component
+{
+public:
+  virtual ~simulation_component() = default;
+  virtual void initialize(const state_t& state){}
+  virtual void update(const state_t& state){}
+  virtual void terminate(const state_t& state){}
+};
+
 template<typename system_t>
 class simulation
 {

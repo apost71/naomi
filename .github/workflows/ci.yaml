@@ -1,0 +1,36 @@
+name: Naomi CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  run-tests:
+    name: Test Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install libfmt-dev libeigen3-dev libboost-all-dev libopenblas-dev \
+              liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
+          
+          sudo apt-get install libgmp-dev libflint-dev libmpc-dev libomp-dev llvm
+          cd symengine
+          mkdir build && cd build
+          cmake -DWITH_GMP=on -DWITH_MPFR=on -DWITH_MPC=on -DINTEGER_CLASS=flint -DWITH_LLVM=on -DWITH_SYMENGINE_THREAD_SAFE=on -DWITH_OPENMP=on ..    make
+          make install
+      
+
+      - name: Configure and Build Project
+        uses: threeal/cmake-action@v1.3.0
+        with:
+          run-build: true
+
+      - name: Test Project
+        uses: threeal/ctest-action@v1.1.0

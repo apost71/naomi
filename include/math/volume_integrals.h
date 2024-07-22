@@ -50,6 +50,8 @@
 #include <string.h>
 #include <math.h>
 
+namespace naomi::geometry::test
+{
 /*
    ============================================================================
    constants
@@ -142,7 +144,7 @@ static double T0, T1[3], T2[3], TP[3];
    ============================================================================
 */
 
-void readPolyhedron(char *name, POLYHEDRON *p)
+inline void readPolyhedron(const char *name, POLYHEDRON *p)
 {
   FILE *fp;
   char line[200], *c;
@@ -151,16 +153,16 @@ void readPolyhedron(char *name, POLYHEDRON *p)
   FACE *f;
 
 
-  if (!(fp = fopen(name, "r"))) {
+  if (!(fp = std::fopen(name, "r"))) {
     printf("i/o error\n");
-    exit(1);
+    // exit(1);
   }
 
   fscanf(fp, "%d", &p->numVerts);
   printf("Reading in %d vertices\n", p->numVerts);
   for (i = 0; i < p->numVerts; i++)
     fscanf(fp, "%lf %lf %lf",
-	   &p->verts[i][X], &p->verts[i][Y], &p->verts[i][Z]);
+           &p->verts[i][X], &p->verts[i][Y], &p->verts[i][Z]);
 
   fscanf(fp, "%d", &p->numFaces);
   printf("Reading in %d faces\n", p->numFaces);
@@ -202,7 +204,7 @@ void readPolyhedron(char *name, POLYHEDRON *p)
 
 
 /* compute various integrations over projection of face */
-void compProjectionIntegrals(FACE *f)
+inline void compProjectionIntegrals(FACE* f)
 {
   double a0, a1, da;
   double b0, b1, db;
@@ -217,33 +219,45 @@ void compProjectionIntegrals(FACE *f)
   for (i = 0; i < f->numVerts; i++) {
     a0 = f->poly->verts[f->verts[i]][A];
     b0 = f->poly->verts[f->verts[i]][B];
-    a1 = f->poly->verts[f->verts[(i+1) % f->numVerts]][A];
-    b1 = f->poly->verts[f->verts[(i+1) % f->numVerts]][B];
+    a1 = f->poly->verts[f->verts[(i + 1) % f->numVerts]][A];
+    b1 = f->poly->verts[f->verts[(i + 1) % f->numVerts]][B];
     da = a1 - a0;
     db = b1 - b0;
-    a0_2 = a0 * a0; a0_3 = a0_2 * a0; a0_4 = a0_3 * a0;
-    b0_2 = b0 * b0; b0_3 = b0_2 * b0; b0_4 = b0_3 * b0;
-    a1_2 = a1 * a1; a1_3 = a1_2 * a1;
-    b1_2 = b1 * b1; b1_3 = b1_2 * b1;
+    a0_2 = a0 * a0;
+    a0_3 = a0_2 * a0;
+    a0_4 = a0_3 * a0;
+    b0_2 = b0 * b0;
+    b0_3 = b0_2 * b0;
+    b0_4 = b0_3 * b0;
+    a1_2 = a1 * a1;
+    a1_3 = a1_2 * a1;
+    b1_2 = b1 * b1;
+    b1_3 = b1_2 * b1;
 
     C1 = a1 + a0;
-    Ca = a1*C1 + a0_2; Caa = a1*Ca + a0_3; Caaa = a1*Caa + a0_4;
-    Cb = b1*(b1 + b0) + b0_2; Cbb = b1*Cb + b0_3; Cbbb = b1*Cbb + b0_4;
-    Cab = 3*a1_2 + 2*a1*a0 + a0_2; Kab = a1_2 + 2*a1*a0 + 3*a0_2;
-    Caab = a0*Cab + 4*a1_3; Kaab = a1*Kab + 4*a0_3;
-    Cabb = 4*b1_3 + 3*b1_2*b0 + 2*b1*b0_2 + b0_3;
-    Kabb = b1_3 + 2*b1_2*b0 + 3*b1*b0_2 + 4*b0_3;
+    Ca = a1 * C1 + a0_2;
+    Caa = a1 * Ca + a0_3;
+    Caaa = a1 * Caa + a0_4;
+    Cb = b1 * (b1 + b0) + b0_2;
+    Cbb = b1 * Cb + b0_3;
+    Cbbb = b1 * Cbb + b0_4;
+    Cab = 3 * a1_2 + 2 * a1 * a0 + a0_2;
+    Kab = a1_2 + 2 * a1 * a0 + 3 * a0_2;
+    Caab = a0 * Cab + 4 * a1_3;
+    Kaab = a1 * Kab + 4 * a0_3;
+    Cabb = 4 * b1_3 + 3 * b1_2 * b0 + 2 * b1 * b0_2 + b0_3;
+    Kabb = b1_3 + 2 * b1_2 * b0 + 3 * b1 * b0_2 + 4 * b0_3;
 
-    P1 += db*C1;
-    Pa += db*Ca;
-    Paa += db*Caa;
-    Paaa += db*Caaa;
-    Pb += da*Cb;
-    Pbb += da*Cbb;
-    Pbbb += da*Cbbb;
-    Pab += db*(b1*Cab + b0*Kab);
-    Paab += db*(b1*Caab + b0*Kaab);
-    Pabb += da*(a1*Cabb + a0*Kabb);
+    P1 += db * C1;
+    Pa += db * Ca;
+    Paa += db * Caa;
+    Paaa += db * Caaa;
+    Pb += da * Cb;
+    Pbb += da * Cbb;
+    Pbbb += da * Cbbb;
+    Pab += db * (b1 * Cab + b0 * Kab);
+    Paab += db * (b1 * Caab + b0 * Kaab);
+    Pabb += da * (a1 * Cabb + a0 * Kabb);
   }
 
   P1 /= 2.0;
@@ -258,7 +272,7 @@ void compProjectionIntegrals(FACE *f)
   Pabb /= -60.0;
 }
 
-void compFaceIntegrals(FACE *f)
+inline void compFaceIntegrals(FACE* f)
 {
   double *n, w;
   double k1, k2, k3, k4;
@@ -267,31 +281,37 @@ void compFaceIntegrals(FACE *f)
 
   w = f->w;
   n = f->norm;
-  k1 = 1 / n[C]; k2 = k1 * k1; k3 = k2 * k1; k4 = k3 * k1;
+  k1 = 1 / n[C];
+  k2 = k1 * k1;
+  k3 = k2 * k1;
+  k4 = k3 * k1;
 
   Fa = k1 * Pa;
   Fb = k1 * Pb;
-  Fc = -k2 * (n[A]*Pa + n[B]*Pb + w*P1);
+  Fc = -k2 * (n[A] * Pa + n[B] * Pb + w * P1);
 
   Faa = k1 * Paa;
   Fbb = k1 * Pbb;
-  Fcc = k3 * (SQR(n[A])*Paa + 2*n[A]*n[B]*Pab + SQR(n[B])*Pbb
-	 + w*(2*(n[A]*Pa + n[B]*Pb) + w*P1));
+  Fcc = k3
+      * (SQR(n[A]) * Paa + 2 * n[A] * n[B] * Pab + SQR(n[B]) * Pbb
+         + w * (2 * (n[A] * Pa + n[B] * Pb) + w * P1));
 
   Faaa = k1 * Paaa;
   Fbbb = k1 * Pbbb;
-  Fccc = -k4 * (CUBE(n[A])*Paaa + 3*SQR(n[A])*n[B]*Paab
-	   + 3*n[A]*SQR(n[B])*Pabb + CUBE(n[B])*Pbbb
-	   + 3*w*(SQR(n[A])*Paa + 2*n[A]*n[B]*Pab + SQR(n[B])*Pbb)
-	   + w*w*(3*(n[A]*Pa + n[B]*Pb) + w*P1));
+  Fccc = -k4
+      * (CUBE(n[A]) * Paaa + 3 * SQR(n[A]) * n[B] * Paab
+         + 3 * n[A] * SQR(n[B]) * Pabb + CUBE(n[B]) * Pbbb
+         + 3 * w * (SQR(n[A]) * Paa + 2 * n[A] * n[B] * Pab + SQR(n[B]) * Pbb)
+         + w * w * (3 * (n[A] * Pa + n[B] * Pb) + w * P1));
 
   Faab = k1 * Paab;
-  Fbbc = -k2 * (n[A]*Pabb + n[B]*Pbbb + w*Pbb);
-  Fcca = k3 * (SQR(n[A])*Paaa + 2*n[A]*n[B]*Paab + SQR(n[B])*Pabb
-	 + w*(2*(n[A]*Paa + n[B]*Pab) + w*Pa));
+  Fbbc = -k2 * (n[A] * Pabb + n[B] * Pbbb + w * Pbb);
+  Fcca = k3
+      * (SQR(n[A]) * Paaa + 2 * n[A] * n[B] * Paab + SQR(n[B]) * Pabb
+         + w * (2 * (n[A] * Paa + n[B] * Pab) + w * Pa));
 }
 
-void compVolumeIntegrals(POLYHEDRON *p)
+inline void compVolumeIntegrals(POLYHEDRON *p)
 {
   FACE *f;
   double nx, ny, nz;
@@ -343,68 +363,69 @@ void compVolumeIntegrals(POLYHEDRON *p)
 /**
 *
 */
-int main_test(int argc, char *argv[])
-{
-  POLYHEDRON p;
-  double density, mass;
-  double r[3];            /* center of mass */
-  double J[3][3];         /* inertia tensor */
-
-  if (argc != 2) {
-    printf("usage:  %s <polyhedron geometry filename>\n", argv[0]);
-    exit(0);
-  }
-
-  readPolyhedron(argv[1], &p);
-
-  compVolumeIntegrals(&p);
-
-
-  printf("\nT1 =   %+20.6f\n\n", T0);
-
-  printf("Tx =   %+20.6f\n", T1[X]);
-  printf("Ty =   %+20.6f\n", T1[Y]);
-  printf("Tz =   %+20.6f\n\n", T1[Z]);
-
-  printf("Txx =  %+20.6f\n", T2[X]);
-  printf("Tyy =  %+20.6f\n", T2[Y]);
-  printf("Tzz =  %+20.6f\n\n", T2[Z]);
-
-  printf("Txy =  %+20.6f\n", TP[X]);
-  printf("Tyz =  %+20.6f\n", TP[Y]);
-  printf("Tzx =  %+20.6f\n\n", TP[Z]);
-
-  density = 1.0;  /* assume unit density */
-
-  mass = density * T0;
-
-  /* compute center of mass */
-  r[X] = T1[X] / T0;
-  r[Y] = T1[Y] / T0;
-  r[Z] = T1[Z] / T0;
-
-  /* compute inertia tensor */
-  J[X][X] = density * (T2[Y] + T2[Z]);
-  J[Y][Y] = density * (T2[Z] + T2[X]);
-  J[Z][Z] = density * (T2[X] + T2[Y]);
-  J[X][Y] = J[Y][X] = - density * TP[X];
-  J[Y][Z] = J[Z][Y] = - density * TP[Y];
-  J[Z][X] = J[X][Z] = - density * TP[Z];
-
-  /* translate inertia tensor to center of mass */
-  J[X][X] -= mass * (r[Y]*r[Y] + r[Z]*r[Z]);
-  J[Y][Y] -= mass * (r[Z]*r[Z] + r[X]*r[X]);
-  J[Z][Z] -= mass * (r[X]*r[X] + r[Y]*r[Y]);
-  J[X][Y] = J[Y][X] += mass * r[X] * r[Y];
-  J[Y][Z] = J[Z][Y] += mass * r[Y] * r[Z];
-  J[Z][X] = J[X][Z] += mass * r[Z] * r[X];
-
-  printf("center of mass:  (%+12.6f,%+12.6f,%+12.6f)\n\n", r[X], r[Y], r[Z]);
-
-  printf("inertia tensor with origin at c.o.m. :\n");
-  printf("%+15.6f  %+15.6f  %+15.6f\n", J[X][X], J[X][Y], J[X][Z]);
-  printf("%+15.6f  %+15.6f  %+15.6f\n", J[Y][X], J[Y][Y], J[Y][Z]);
-  printf("%+15.6f  %+15.6f  %+15.6f\n\n", J[Z][X], J[Z][Y], J[Z][Z]);
-
+// int main_test(int argc, char *argv[])
+// {
+//   POLYHEDRON p;
+//   double density, mass;
+//   double r[3];            /* center of mass */
+//   double J[3][3];         /* inertia tensor */
+//
+//   if (argc != 2) {
+//     printf("usage:  %s <polyhedron geometry filename>\n", argv[0]);
+//     exit(0);
+//   }
+//
+//   readPolyhedron(argv[1], &p);
+//
+//   compVolumeIntegrals(&p);
+//
+//
+//   printf("\nT1 =   %+20.6f\n\n", T0);
+//
+//   printf("Tx =   %+20.6f\n", T1[X]);
+//   printf("Ty =   %+20.6f\n", T1[Y]);
+//   printf("Tz =   %+20.6f\n\n", T1[Z]);
+//
+//   printf("Txx =  %+20.6f\n", T2[X]);
+//   printf("Tyy =  %+20.6f\n", T2[Y]);
+//   printf("Tzz =  %+20.6f\n\n", T2[Z]);
+//
+//   printf("Txy =  %+20.6f\n", TP[X]);
+//   printf("Tyz =  %+20.6f\n", TP[Y]);
+//   printf("Tzx =  %+20.6f\n\n", TP[Z]);
+//
+//   density = 1.0;  /* assume unit density */
+//
+//   mass = density * T0;
+//
+//   /* compute center of mass */
+//   r[X] = T1[X] / T0;
+//   r[Y] = T1[Y] / T0;
+//   r[Z] = T1[Z] / T0;
+//
+//   /* compute inertia tensor */
+//   J[X][X] = density * (T2[Y] + T2[Z]);
+//   J[Y][Y] = density * (T2[Z] + T2[X]);
+//   J[Z][Z] = density * (T2[X] + T2[Y]);
+//   J[X][Y] = J[Y][X] = - density * TP[X];
+//   J[Y][Z] = J[Z][Y] = - density * TP[Y];
+//   J[Z][X] = J[X][Z] = - density * TP[Z];
+//
+//   /* translate inertia tensor to center of mass */
+//   J[X][X] -= mass * (r[Y]*r[Y] + r[Z]*r[Z]);
+//   J[Y][Y] -= mass * (r[Z]*r[Z] + r[X]*r[X]);
+//   J[Z][Z] -= mass * (r[X]*r[X] + r[Y]*r[Y]);
+//   J[X][Y] = J[Y][X] += mass * r[X] * r[Y];
+//   J[Y][Z] = J[Z][Y] += mass * r[Y] * r[Z];
+//   J[Z][X] = J[X][Z] += mass * r[Z] * r[X];
+//
+//   printf("center of mass:  (%+12.6f,%+12.6f,%+12.6f)\n\n", r[X], r[Y], r[Z]);
+//
+//   printf("inertia tensor with origin at c.o.m. :\n");
+//   printf("%+15.6f  %+15.6f  %+15.6f\n", J[X][X], J[X][Y], J[X][Z]);
+//   printf("%+15.6f  %+15.6f  %+15.6f\n", J[Y][X], J[Y][Y], J[Y][Z]);
+//   printf("%+15.6f  %+15.6f  %+15.6f\n\n", J[Z][X], J[Z][Y], J[Z][Z]);
+//
+// }
 }
 #endif //VOLUME_INTEGRALS_H

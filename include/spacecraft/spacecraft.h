@@ -6,46 +6,53 @@
 #define SPACECRAFT_H
 #include <utility>
 
-#include "attitude/attitude_law.h"
+#include "attitude/attitude_provider.h"
+#include "body_shape.h"
+#include "control/controller.h"
 #include "frames/transforms.h"
 #include "maneuvers/maneuver_plan.h"
 
 namespace naomi {
 
-class spacecraft_controller;
+using namespace naomi::control;
+using namespace naomi::attitude;
+using namespace naomi::geometry;
+
 class spacecraft
 {
   std::string m_identifier;
-  state_type m_state;  // TODO: probably should be a pointer
+  spacecraft_state m_state;
+  // state_type m_state;  // TODO: probably should be a pointer
   quaternion_type m_attitude = {1, 0, 0, 0};
-  double m_mass;
-  std::vector<std::shared_ptr<spacecraft_controller>> m_controllers;
+  std::vector<std::shared_ptr<controller>> m_controllers;
   std::shared_ptr<maneuvers::maneuver_plan> m_maneuver_plan;
-  std::shared_ptr<attitude::attitude_law> m_attitude_law;
+  state_type m_forces;
+  body_shape m_body_shape = body_shape::make_rectangle(1, 1, 1, 100);
 
 public:
-  spacecraft(std::string identifier, state_type state, const double& mass):
+  spacecraft(std::string identifier, const state_type& state, const double& mass):
     m_identifier(std::move(identifier)),
-    m_state(std::move(state)),
-    m_mass(mass) {}
+    m_state(state, nullptr, mass) {}
 
-  spacecraft(std::string identifier, state_type state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<attitude::attitude_law>& attitude_law):
+  spacecraft(std::string identifier, const state_type& state, const double& mass, const std::shared_ptr<attitude_provider>& attitude_law):
     m_identifier(std::move(identifier)),
-    m_state(std::move(state)),
-    m_attitude(attitude),
-    m_mass(mass),
-    m_attitude_law(attitude_law) {}
+    m_state(state, attitude_law, mass) {}
+
+  spacecraft(std::string identifier, const state_type& state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<attitude::attitude_provider>& attitude_law):
+    m_identifier(std::move(identifier)),
+    m_state(state, attitude_law, mass),
+    m_attitude(attitude) {}
 
 
-  spacecraft(std::string identifier, state_type state, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
-    m_identifier(std::move(identifier)), m_state(std::move(state)), m_mass(mass), m_maneuver_plan(mp) {}
+  spacecraft(std::string identifier, const state_type& state, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
+    m_identifier(std::move(identifier)), m_state(state, nullptr, mass), m_maneuver_plan(mp) {}
 
-  spacecraft(std::string identifier, state_type state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
-    m_identifier(std::move(identifier)), m_state(std::move(state)), m_attitude(attitude), m_mass(mass), m_maneuver_plan(mp) {}
+  spacecraft(std::string identifier, const state_type& state, const quaternion_type& attitude, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
+    m_identifier(std::move(identifier)), m_state(state, nullptr, mass), m_attitude(attitude), m_maneuver_plan(mp) {}
 
   auto get_state() -> state_type&
   {
-    return m_state;
+    return m_state.get_state();
   }
 
   auto get_attitude() -> quaternion_type&
@@ -53,9 +60,28 @@ public:
     return m_attitude;
   }
 
-  auto get_additional_state_providers() -> std::vector<std::shared_ptr<attitude::additional_state_provider>>
+  auto get_forces() -> state_type&
   {
-    return { m_attitude_law };
+    return m_forces;
+  }
+
+  auto get_inertia_matrix() -> arma::mat33
+  {
+    return m_body_shape.get_inertia_tensor();
+  }
+
+  void tick(const state_type& state, const double t)
+  {
+    m_state.set_state(state(arma::span(0, 5)));
+    m_attitude = state(arma::span(6, 9));
+    for (const auto& controller: m_controllers) {
+      control_input inp = controller->get_control_input(m_state.get_state(), m_attitude, t);
+    }
+  }
+
+  auto get_additional_state_providers() -> std::vector<std::shared_ptr<additional_state_provider>>
+  {
+    return { m_state.get_attitude_provider() };
   }
 
   [[nodiscard]] auto get_identifier() const -> std::string
@@ -63,14 +89,14 @@ public:
     return m_identifier;
   }
 
-  [[nodiscard]] auto get_controllers() const -> std::vector<std::shared_ptr<spacecraft_controller>>
+  [[nodiscard]] auto get_controllers() const -> std::vector<std::shared_ptr<controller>>
   {
     return m_controllers;
   }
 
   auto get_mass() -> double
   {
-    return m_mass;
+    return m_state.get_mass();
   }
 
   auto get_identifier() -> std::string
@@ -80,7 +106,7 @@ public:
 
   void set_state(const state_type& state)
   {
-    m_state = state;
+    m_state.set_state(state);
   }
 
   void set_attitude(const quaternion_type& attitude)
@@ -95,8 +121,9 @@ public:
 
   void apply_force(const arma::vec3& forces)
   {
-    const auto eci_forces = (eci2ric(m_state) * forces).eval();
-    m_state(arma::span(3, 5)) += eci_forces;
+    auto state = m_state.get_state();
+    const auto eci_forces = (eci2ric(state) * forces).eval();
+    state(arma::span(3, 5)) += eci_forces;
   }
 };
 }

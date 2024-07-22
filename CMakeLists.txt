@@ -37,20 +37,24 @@ add_library(naomi src/naomi.cpp
         include/forces/two_body_force_model.h
         include/propagators/event_handler.h
         include/maneuvers/maneuver_plan.h
-        include/control/spacecraft_controller.h
+        include/control/controller.h
         src/maneuvers/maneuver_plan.cpp
         include/observers/simulation_observer.h
         include/simulation/simulation.h
         src/observers/results_csv_writer_observer.cpp
         examples/simulation/main.cpp
         include/forces/two_body_rot_force_model.h
-        include/attitude/attitude_law.h
+        include/attitude/attitude_provider.h
         include/attitude/torque_free.h
         include/math/vector_utils.h
         include/math/volume_integrals.h
         include/attitude/rotation.h
         include/attitude/euler_angles.h
-        include/spacecraft/body_shape.h)
+        include/spacecraft/body_shape.h
+        include/control/pid_controller.h
+        include/math/quaternion.h
+        include/spacecraft/spacecraft_state.h
+        include/math/transport_theorem.h)
 include_directories(${SYMENGINE_INCLUDE_DIRS})
 target_include_directories(naomi PUBLIC include )
 target_link_libraries(naomi

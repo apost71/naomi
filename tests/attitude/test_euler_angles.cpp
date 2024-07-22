@@ -12,10 +12,11 @@
 
 using namespace naomi;
 using namespace naomi::attitude;
+
 TEST(TestEulerAngles, TestRotation)
 {
-  auto order = rotation_order::XYZ;
-  auto arr = dynamic_cast<std::array<int, 3>>(order);
-  fmt::print("array: {}", arr);
+  euler_angles ea(0.5, 0.5, 0.5, rotation_order::XYZ);
+  auto dcm = ea.get_dcm();
+  dcm.print("DCM: ");
 
 }
