@@ -56,7 +56,6 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
-          args: "-std=c++17"
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
