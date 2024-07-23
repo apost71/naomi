@@ -7,12 +7,40 @@ on:
 jobs:
   run-tests:
     name: Test Project
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2022
+          - ubuntu-22.04
+          - macos-12
+        compiler:
+          - llvm
+          - gcc
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
         with:
           submodules: 'true'
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            /usr/local/lib
+          key: ${{ runner.os }}-${{ matrix.compiler }}-${{ env.BUILD_TYPE }}-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('./vcpkg.json')}}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.BUILD_TYPE }}-
+
+      - name: Setup Cpp
+        uses: aminya/setup-cpp@v1
+        with:
+          compiler: ${{ matrix.compiler }}
+          cmake: true
+          ninja: true
+          cppcheck: true
+          clangtidy: true
 
       - name: Install dependencies
         run: |
@@ -24,7 +52,7 @@ jobs:
           cd symengine
           mkdir build && cd build
           cmake -DWITH_GMP=on -DWITH_MPFR=on -DWITH_MPC=on -DINTEGER_CLASS=flint -DWITH_LLVM=on -DWITH_SYMENGINE_THREAD_SAFE=on -DWITH_OPENMP=on ..    make
-          make install
+          sudo make install
       
 
       - name: Configure and Build Project
