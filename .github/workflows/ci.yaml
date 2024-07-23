@@ -14,9 +14,7 @@ jobs:
         os:
           - ubuntu-22.04
         compiler:
-          - llvm
           - gcc
-          - clang
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -45,7 +43,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libfmt-dev libeigen3-dev libboost-all-dev libopenblas-dev \
-              liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev
+              liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev libgtest-dev
           
           sudo apt-get install libgmp-dev libflint-dev libmpc-dev libomp-dev llvm
           cd symengine
