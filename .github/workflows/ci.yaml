@@ -49,7 +49,7 @@ jobs:
           cd symengine
           mkdir build && cd build
           cmake -DWITH_GMP=on -DWITH_MPFR=on -DWITH_MPC=on -DINTEGER_CLASS=flint -DWITH_LLVM=on -DWITH_SYMENGINE_THREAD_SAFE=on -DWITH_OPENMP=on .. 
-          sudo make -j 10
+          sudo make -j 2
           sudo make install
 
       - name: Configure and Build Project
