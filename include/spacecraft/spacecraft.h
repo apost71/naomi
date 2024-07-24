@@ -11,6 +11,7 @@
 #include "control/controller.h"
 #include "frames/transforms.h"
 #include "maneuvers/maneuver_plan.h"
+#include "pv_coordinates.h"
 
 namespace naomi {
 
@@ -18,7 +19,7 @@ using namespace naomi::control;
 using namespace naomi::attitude;
 using namespace naomi::geometry;
 
-class spacecraft
+class spacecraft: public simulation_component<spacecraft_state>
 {
   std::string m_identifier;
   spacecraft_state m_state;
@@ -55,6 +56,11 @@ public:
     return m_state.get_state();
   }
 
+  auto get_pv_coordinates() -> pv_coordinates
+  {
+    return pv_coordinates(m_state.get_state());
+  }
+
   auto get_attitude() -> quaternion_type&
   {
     return m_attitude;
@@ -68,6 +74,11 @@ public:
   auto get_inertia_matrix() -> arma::mat33
   {
     return m_body_shape.get_inertia_tensor();
+  }
+
+  void update(const spacecraft_state& state) override
+  {
+    m_state = state;
   }
 
   void tick(const state_type& state, const double t)

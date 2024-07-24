@@ -56,7 +56,8 @@ add_library(naomi src/naomi.cpp
         include/control/pid_controller.h
         include/math/quaternion.h
         include/spacecraft/spacecraft_state.h
-        include/math/transport_theorem.h)
+        include/math/transport_theorem.h
+        include/spacecraft/pv_coordinates.h)
 include_directories(${SYMENGINE_INCLUDE_DIRS})
 target_include_directories(naomi PUBLIC include )
 target_link_libraries(naomi

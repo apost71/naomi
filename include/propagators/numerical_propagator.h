@@ -162,6 +162,7 @@ public:
         std::cout << "event occurred at: " << start_t << "state: " << state << "\n";
       }
       m_integrator.integrate( system.second, state , start_t , end_t , 0.1 );
+      spacecraft->update(state);
       spacecraft->set_state(state(arma::span(0, 5)));
       spacecraft->set_attitude(state(arma::span(6, 9)));
     }

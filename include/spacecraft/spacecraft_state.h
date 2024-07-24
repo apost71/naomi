@@ -48,6 +48,12 @@ public:
   {
   }
 
+  void update(const state_type& state)
+  {
+    m_state = state(arma::span(0, 5));
+
+  }
+
   auto get_state() -> state_type&
   {
     return m_state;
