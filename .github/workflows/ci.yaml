@@ -3,6 +3,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - src/**
+      - tests/**
+      - include/**
+      - .github/workflows/ci.yaml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   run-tests:
@@ -39,11 +48,16 @@ jobs:
           cppcheck: true
           clangtidy: true
 
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.25.x'
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install libfmt-dev libeigen3-dev libboost-all-dev libopenblas-dev \
-              liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev libgtest-dev cmake
+              liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev libgtest-dev
           
           sudo apt-get install libgmp-dev libflint-dev libmpc-dev libomp-dev llvm
           cd symengine
