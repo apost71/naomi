@@ -72,15 +72,15 @@ public:
 
   arma::mat33 get_dcm() override
   {
-    std::array<int, 3> rotation_order_arr = m_rotation_order_map[m_rotation_order];
+    const std::array<int, 3> rotation_order_arr =
+        m_rotation_order_map[m_rotation_order];
     const auto rot1 = get_axis_rotation(rotation_order_arr[0], m_alpha);
     const auto rot2 = get_axis_rotation(rotation_order_arr[1], m_beta);
     const auto rot3 = get_axis_rotation(rotation_order_arr[2], m_gamma);
-    return rot1*rot2*rot3;
-
+    return rot1 * rot2 * rot3;
   }
 
-  arma::mat33 get_axis_rotation(int axis, double th)
+  static arma::mat33 get_axis_rotation(int axis, double th)
   {
     if (axis == 1) {
       return {

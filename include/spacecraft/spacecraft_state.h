@@ -6,15 +6,13 @@
 #define SPACECRAFT_STATE_H
 #include <utility>
 
-#include "attitude/attitude_provider.h"
+#include "attitude/angular_coordinates.h"
+#include "pv_coordinates.h"
 #include "simulation/simulation.h"
 #include "state_vector.h"
 
 namespace naomi
 {
-
-using namespace naomi::attitude;
-
 
 class state_provider
 {
@@ -34,44 +32,46 @@ class mass_provider
 
 class spacecraft_state
 {
-  state_type m_state;
-  std::shared_ptr<attitude_provider> m_attitude;
-  double m_mass;
+  pv_coordinates _pv_coordinates;
+  angular_coordinates _angular_coordinates = angular_coordinates::identity();
+  double _mass;
 
 public:
-  spacecraft_state(state_type m_state,
-                   const std::shared_ptr<attitude_provider>& m_attitude,
-                   const double m_mass)
-      : m_state(std::move(m_state))
-      , m_attitude(m_attitude)
-      , m_mass(m_mass)
+  spacecraft_state(const state_type& state,
+                   angular_coordinates angular_coordinates,
+                   const double mass)
+      : _pv_coordinates(state)
+      , _angular_coordinates(std::move(angular_coordinates))
+      , _mass(mass)
+  {
+  }
+
+  spacecraft_state(const state_type& state,
+                 const double mass)
+    : _pv_coordinates(state)
+    , _mass(mass)
   {
   }
 
   void update(const state_type& state)
   {
-    m_state = state(arma::span(0, 5));
-
-  }
-
-  auto get_state() -> state_type&
-  {
-    return m_state;
-  }
-
-  void set_state(const state_type& state)
-  {
-    m_state = state;
-  }
-
-  auto get_attitude_provider() -> std::shared_ptr<attitude_provider>&
-  {
-    return m_attitude;
+    const pv_coordinates new_pv(state);
+    _pv_coordinates = new_pv;
   }
 
   [[nodiscard]] auto get_mass() const -> double
   {
-    return m_mass;
+    return _mass;
+  }
+
+  [[nodiscard]] auto get_pv_coordinates() -> pv_coordinates
+  {
+    return _pv_coordinates;
+  }
+
+  void set_pv_coordinates(const pv_coordinates& pv)
+  {
+    _pv_coordinates = pv;
   }
 };
 

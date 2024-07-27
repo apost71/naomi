@@ -98,7 +98,7 @@ public:
         [force_model, spacecraft](const auto& x, auto& dxdt, double t)
         {
           (*force_model)(x, dxdt, t);
-          std::size_t start_idx = 5;
+          std::size_t start_idx = 8;
           auto addl_state_providers =
               spacecraft->get_additional_state_providers();
           for (const auto& addl_states : addl_state_providers) {
@@ -162,7 +162,7 @@ public:
         std::cout << "event occurred at: " << start_t << "state: " << state << "\n";
       }
       m_integrator.integrate( system.second, state , start_t , end_t , 0.1 );
-      spacecraft->update(state);
+      // spacecraft->update(state);
       spacecraft->set_state(state(arma::span(0, 5)));
       spacecraft->set_attitude(state(arma::span(6, 9)));
     }

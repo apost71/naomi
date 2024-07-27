@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
-project(NaomiTest CXX)
-
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+project(test_naomi CXX)
 
 enable_testing()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 find_package(GTest REQUIRED CONFIG)
 
@@ -19,6 +18,7 @@ add_executable(test_naomi test_naomi.cpp
         attitude/test_euler_angles.cpp
         spacecraft/test_body_shape.cpp)
 target_link_libraries(test_naomi naomi GTest::gtest GTest::gtest_main)
+target_compile_features(test_naomi PUBLIC cxx_std_17)
 
 include(GoogleTest)
 gtest_discover_tests(test_naomi)

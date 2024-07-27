@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.22)
 project(naomi C CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_STANDARD 17)
 
 
 include(GNUInstallDirs)
@@ -17,7 +16,7 @@ find_package(Armadillo)
 set(CMAKE_BUILD_TYPE ${SYMENGINE_BUILD_TYPE})
 set(CMAKE_CXX_FLAGS_RELEASE ${SYMENGINE_CXX_FLAGS_RELEASE})
 set(CMAKE_CXX_FLAGS_DEBUG ${SYMENGINE_CXX_FLAGS_DEBUG})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYMENGINE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYMENGINE_CXX_FLAGS} -std=c++17")
 
 add_library(naomi src/naomi.cpp
         include/bodies/celestial_body.h
@@ -57,7 +56,12 @@ add_library(naomi src/naomi.cpp
         include/math/quaternion.h
         include/spacecraft/spacecraft_state.h
         include/math/transport_theorem.h
-        include/spacecraft/pv_coordinates.h)
+        include/spacecraft/pv_coordinates.h
+        include/frames/frame.h
+        include/spacecraft/spacecraft_subsystem.h
+        include/attitude/spacecraft_attitude_subsystem.h
+        include/attitude/angular_coordinates.h)
+target_compile_features(naomi PUBLIC cxx_std_17)
 include_directories(${SYMENGINE_INCLUDE_DIRS})
 target_include_directories(naomi PUBLIC include )
 target_link_libraries(naomi

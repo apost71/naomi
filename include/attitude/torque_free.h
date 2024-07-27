@@ -13,7 +13,9 @@ namespace naomi::attitude
 {
 using namespace math;
 
-class torque_free_attitude final : public attitude_provider
+class torque_free_attitude final :
+  public attitude_provider,
+  public additional_state_provider
 {
   static arma::vec3 compute_angular_velocity(const state_type& state)
   {
@@ -24,8 +26,8 @@ class torque_free_attitude final : public attitude_provider
     return w;
   }
 public:
-  explicit torque_free_attitude(const state_type& attitude, const arma::mat33& inertia_matrix): attitude_provider(attitude, inertia_matrix){}
-
+  explicit torque_free_attitude(const arma::mat33& inertia_matrix): attitude_provider(inertia_matrix), additional_state_provider(arma::vec4()){}
+  ~torque_free_attitude() override = default;
   [[nodiscard]] state_type get_derivative(
       const state_type& state) const override
   {
@@ -51,10 +53,14 @@ public:
   {
     return {1, 2, 3};
   }
-  state_type get_angular_velocity() override
+
+  state_type get_angular_velocity() override { return {1, 2, 3}; }
+  void initialize(const spacecraft_state& state) override
   {
-    return {1, 2, 3};
+
   }
+  void update(const spacecraft_state& state) override {}
+  void terminate(const spacecraft_state& state) override {}
 };
 }
 #endif //TORQUE_FREE_H

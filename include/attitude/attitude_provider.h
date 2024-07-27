@@ -7,7 +7,9 @@
 #include <utility>
 
 #include "simulation/simulation.h"
+#include "spacecraft/spacecraft_state.h"
 #include "spacecraft/state_vector.h"
+
 
 namespace naomi::attitude
 {
@@ -31,13 +33,13 @@ public:
 };
 
 
-class attitude_provider: public additional_state_provider
+class attitude_provider: public simulation_component<spacecraft_state>
 {
 protected:
   arma::mat33 m_inertia_matrix;
 
 public:
-  attitude_provider(const state_type& attitude, const arma::mat33& inertia_matrix): additional_state_provider(attitude), m_inertia_matrix(inertia_matrix) {}
+  explicit attitude_provider(const arma::mat33& inertia_matrix): m_inertia_matrix(inertia_matrix) {}
   ~attitude_provider() override = default;
   virtual quaternion_type get_rotation() = 0;
   virtual state_type get_angular_momentum() = 0;
