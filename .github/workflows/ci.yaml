@@ -76,7 +76,7 @@ jobs:
         with:
           run-build: true
           source-dir: symengine
-          options: CMAKE_C_COMPILER_LAUNCHER=ccache CMAKE_CXX_COMPILER_LAUNCHER=ccache WITH_GMP=on WITH_MPFR=on WITH_MPC=on INTEGER_CLASS=flint WITH_LLVM=on WITH_SYMENGINE_THREAD_SAFE=on WITH_OPENMP=on
+          options: CMAKE_INSTALL_PREFIX=/home/runner/work/ CMAKE_C_COMPILER_LAUNCHER=ccache CMAKE_CXX_COMPILER_LAUNCHER=ccache WITH_GMP=on WITH_MPFR=on WITH_MPC=on INTEGER_CLASS=flint WITH_LLVM=on WITH_SYMENGINE_THREAD_SAFE=on WITH_OPENMP=on
           build-args: "--target install"
 
 
@@ -84,9 +84,7 @@ jobs:
         uses: threeal/cmake-action@v1.3.0
         with:
           run-build: true
-          options: |
-            CMAKE_C_COMPILER_LAUNCHER=ccache
-            CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          options: CMAKE_INSTALL_PREFIX=/home/runner/work/;/usr/bin/local/ CMAKE_C_COMPILER_LAUNCHER=ccache CMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
