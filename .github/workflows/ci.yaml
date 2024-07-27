@@ -76,16 +76,7 @@ jobs:
         with:
           run-build: true
           source-dir: symengine
-          options: |
-            "CMAKE_C_COMPILER_LAUNCHER=ccache"
-            "CMAKE_CXX_COMPILER_LAUNCHER=ccache"
-            "WITH_GMP=on"
-            "WITH_MPFR=on"
-            "WITH_MPC=on"
-            "INTEGER_CLASS=flint"
-            "WITH_LLVM=on"
-            "WITH_SYMENGINE_THREAD_SAFE=on"
-            "WITH_OPENMP=on"
+          options: CMAKE_C_COMPILER_LAUNCHER=ccache CMAKE_CXX_COMPILER_LAUNCHER=ccache WITH_GMP=on WITH_MPFR=on WITH_MPC=on INTEGER_CLASS=flint WITH_LLVM=on WITH_SYMENGINE_THREAD_SAFE=on WITH_OPENMP=on
           args: "--target install"
 
 
