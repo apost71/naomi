@@ -4,9 +4,10 @@ NAOMI (<b>N</b>umerical <b>A</b>strodynamics and <b>O</b>rbital <b>M</b>echanics
 It has been designed from the ground up to support distributed, high fidelity, and interactive
 simulations.  Additionally, there is support for symbolic math through the use of [Symengine](https://symengine.org/).
 
-!!! note
+!!! warning
 
-    This has currently only been tested with gcc on Ubuntu Linux 22.04
+    This project is under active development and subject to significant change without warning.
+    It has currently only been tested with gcc on Ubuntu Linux 22.04
 
 ## Installation
 
