@@ -11,7 +11,6 @@ add_executable(test_naomi test_naomi.cpp
         orbits/test_orbit_utils.cpp
         maneuvers/test_hohmann_transfer.cpp
         frames/test_frame_transforms.cpp
-        boost_examples.cpp
         simulation/test_simulation.cpp
         observers/test_observer.cpp
         attitude/test_torque_free.cpp

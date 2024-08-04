@@ -6,6 +6,8 @@
 #define HOHMANN_TRANSFER_H
 #include <fmt/core.h>
 
+#include <utility>
+
 #include "constants.h"
 #include "maneuver.h"
 #include "maneuver_plan.h"
@@ -23,8 +25,8 @@ class hohmann_transfer
   double m_transit_time;
 
 public:
-  hohmann_transfer(const state_type& initial_state, double target_radius ):
-    m_initial_state(initial_state), m_target_radius(target_radius)
+  hohmann_transfer(state_type initial_state, double target_radius ):
+    m_initial_state(std::move(initial_state)), m_target_radius(target_radius)
   {
     auto r = m_initial_state(arma::span(0, 2));
     auto v = m_initial_state(arma::span(3, 5));
@@ -53,12 +55,13 @@ public:
   }
 
   hohmann_transfer(const double initial_radius, const double target_radius):
-    hohmann_transfer(keplerian_orbit(initial_radius).to_cartesian(), target_radius)
+    hohmann_transfer(
+            arma::Col(keplerian_orbit(initial_radius).to_cartesian()), target_radius)
   {}
 
   auto get_maneuver_plan(double start_time = 0) -> std::shared_ptr<maneuver_plan>
   {
-    double initial_radius = norm(m_initial_state(arma::span(0, 2)));
+    const double initial_radius = norm(m_initial_state(arma::span(0, 2)));
     std::shared_ptr<event_detector> start_detector = std::make_shared<time_detector>(start_time);
     if (m_target_radius > initial_radius) {
       std::shared_ptr<event_detector> apoapsis_detector = std::make_shared<apside_detector>(apside_detector(DECREASING));
@@ -135,16 +138,16 @@ public:
                               const double transfer_radius):
     m_initial_sma(initial_sma), m_target_sma(target_sma), m_transfer_magnitude(transfer_radius)
   {
-    double transfer_sma1 = (transfer_radius + m_initial_sma) / 2.0;
-    double v_initial = vis_viva(m_initial_sma, m_initial_sma);
-    double v_pt = vis_viva(m_initial_sma, transfer_sma1);
-    double r_a1 = transfer_sma1 * 2.0 - m_initial_sma;
-    double transfer_sma2 = (r_a1 + m_target_sma)/2.0;
-    double v_a1 = vis_viva(r_a1, transfer_sma1);
-    double v_a2 = vis_viva(r_a1, transfer_sma2);
+    const double transfer_sma1 = (transfer_radius + m_initial_sma) / 2.0;
+    const double v_initial = vis_viva(m_initial_sma, m_initial_sma);
+    const double v_pt = vis_viva(m_initial_sma, transfer_sma1);
+    const double r_a1 = transfer_sma1 * 2.0 - m_initial_sma;
+    const double transfer_sma2 = (r_a1 + m_target_sma) / 2.0;
+    const double v_a1 = vis_viva(r_a1, transfer_sma1);
+    const double v_a2 = vis_viva(r_a1, transfer_sma2);
 
-    double v_p2 = vis_viva(m_target_sma, transfer_sma2);
-    double v_t = vis_viva(m_target_sma, m_target_sma);
+    const double v_p2 = vis_viva(m_target_sma, transfer_sma2);
+    const double v_t = vis_viva(m_target_sma, m_target_sma);
 
     m_dvs = {
       v_pt - v_initial,
