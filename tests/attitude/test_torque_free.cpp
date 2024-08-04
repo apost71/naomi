@@ -11,7 +11,7 @@
 
 using namespace naomi;
 using namespace naomi::attitude;
-TEST(TestTorqueFree, TestInitialize)
-{
-  torque_free_attitude tf(arma::mat33().eye());
-}
+// TEST(TestTorqueFree, TestInitialize)
+// {
+//   torque_free_attitude tf(arma::mat33().eye());
+// }

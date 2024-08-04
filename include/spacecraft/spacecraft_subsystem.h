@@ -27,7 +27,10 @@ public:
   {
     return _name;
   }
-  virtual std::vector<std::shared_ptr<attitude::additional_state_provider>> get_additional_state_providers() = 0;
+  virtual std::vector<std::shared_ptr<attitude::additional_state_provider>> get_additional_state_providers()
+  {
+    return {};
+  };
 };
 
 

@@ -9,9 +9,11 @@
 #include "bodies/earth.h"
 #include "forces/two_body_force_model.h"
 #include "maneuvers/hohmann_transfer.h"
+#include "observers/simulation_observer.h"
 #include "orbits/keplerian.h"
 #include "orbits/orbits.h"
 #include "propagators/numerical_propagator.h"
+#include "simulation/simulation.h"
 #include "systems/system.h"
 
 using namespace naomi;
@@ -23,8 +25,8 @@ using namespace naomi::forces;
 
 TEST(TestHohmann, TestDeltaV)
 {
-  const double initial_r = 6378000 + 250000;
-  const double target_r = 42164154.0;
+  constexpr double initial_r = 6378000 + 250000;
+  constexpr double target_r = 42164154.0;
   const arma::vec3 r = {initial_r, 0, 0};
   const state_type sv = get_circular_orbit(r);
   hohmann_transfer ht(sv, target_r);
@@ -58,110 +60,64 @@ TEST(TestHohmann, TestDeltaV2)
 
 TEST(TestHohmann, TestPropagation)
 {
-  double initial_r = 6378000 + 250000;
-  double target_r = 42164154.0;
-  arma::vec3 r = {initial_r, 0, 0};
+  constexpr double initial_r = 6378000 + 250000;
+  constexpr double target_r = 42164154.0;
+  const arma::vec3 r = {initial_r, 0, 0};
   state_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
-  auto mp = ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(initial_r));
-  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
+  auto mp =
+      ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(initial_r));
+  auto sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
-  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  std::shared_ptr<equations_of_motion> two_body_forces = std::make_shared<two_body_force_model_eoms>(earth_body);
   typedef numerical_propagator<rk_dopri5_stepper> propagator;
-  physical_system<propagator> system(sc, two_body_forces);
-  std::fstream fout;
-
-  // opens an existing csv file or creates a new file.
-  fout.open("/home/alexpost/code/naomi/test_hohmann_transfer.csv", std::ios::out);
-
-  fout << "x,y,z,vx,vy,vz\n";
-
-  auto curr_state = sc->get_state();
-  fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-  fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-
-  double t = 0.0;
-  std::cout << "Starting propagation..\n";
-  while (t < 60.0*60.0*32) {
-    system.simulate_by(10.0);
-    curr_state = sc->get_state();
-    // std::cout << t << "\n";
-    fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-    fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-    t += 10.0;
-  }
-  fout.close();
+  typedef physical_system<propagator> system_t;
+  const auto system = std::make_shared<system_t>(sc, two_body_forces);
+  auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
+        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/test_hohmann_transfer.csv"));
+  simulation<system_t> sim(system, {file_observer});
+  sim.simulate(60.0*60.0*32);
 }
 
 TEST(TestHohmann, TestPropagationInclined)
 {
   // double initial_r = 6378000 + 250000;
-  double target_r = 42164154.0;
-  arma::vec3 r = {3900000.0, 3900000.0, 3900000.0};
+  constexpr double target_r = 42164154.0;
+  const arma::vec3 r = {3900000.0, 3900000.0, 3900000.0};
   state_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
   auto mp = ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(norm(r)));
-  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
+  auto sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
-  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  std::shared_ptr<equations_of_motion> two_body_forces = std::make_shared<two_body_force_model_eoms>(earth_body);
   typedef numerical_propagator<rk_dopri5_stepper> propagator;
-  physical_system<propagator> system(sc, two_body_forces);
-  std::fstream fout;
+  typedef physical_system<propagator> system_t;
+  auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
+      observers::results_csv_writer_observer<system_t>(
+          10.0,
+          "/home/alexpost/code/naomi/test_hohmann_transfer_inclined.csv"));
 
-  // opens an existing csv file or creates a new file.
-  fout.open("/home/alexpost/code/naomi/test_hohmann_transfer.csv", std::ios::out);
-
-  fout << "x,y,z,vx,vy,vz\n";
-
-  auto curr_state = sc->get_state();
-  fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-  fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-
-  double t = 0.0;
-  std::cout << "Starting propagation..\n";
-  while (t < 60.0*60.0*32) {
-    system.simulate_by(10.0);
-    curr_state = sc->get_state();
-    // std::cout << t << "\n";
-    fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-    fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-    t += 10.0;
-  }
-  fout.close();
+  const auto system = std::make_shared<system_t>(sc, two_body_forces);
+  simulation<system_t> sim(system, {file_observer});
+  sim.simulate(60.0*60.0*32);
 }
 
 TEST(TestBiEllipticHohmann, TestSomethingElse)
 {
-  double initial_r = 7000000;
-  double target_r = 105000000;
-  arma::vec3 r = {initial_r, 0, 0};
+  constexpr double initial_r = 7000000;
+  constexpr double target_r = 105000000;
+  const arma::vec3 r = {initial_r, 0, 0};
   state_type state_vec = get_circular_orbit(r);
-  bielliptic_hohmann_transfer ht(initial_r, target_r, target_r*2);
+  const bielliptic_hohmann_transfer ht(initial_r, target_r, target_r*2);
   auto mp = ht.get_maneuver_plan(0);
-  std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
+  auto sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
-  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  std::shared_ptr<equations_of_motion> two_body_forces = std::make_shared<two_body_force_model_eoms>(earth_body);
   typedef numerical_propagator<rk_dopri5_stepper> propagator;
-  physical_system<propagator> system(sc, two_body_forces);
-  std::fstream fout;
-
-  // opens an existing csv file or creates a new file.
-  fout.open("/home/alexpost/code/naomi/test_hohmann_transfer_bielliptic.csv", std::ios::out);
-
-  fout << "x,y,z,vx,vy,vz\n";
-
-  auto curr_state = sc->get_state();
-  fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-  fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-
-  double t = 0.0;
-  std::cout << "Starting propagation..\n";
-  while (t < 60.0*60.0*240) {
-    system.simulate_by(10.0);
-    curr_state = sc->get_state();
-    fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
-    fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
-    t += 10.0;
-  }
-  fout.close();
+  typedef physical_system<propagator> system_t;
+  const auto system = std::make_shared<system_t>(sc, two_body_forces);
+  auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
+        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/test_hohmann_transfer_bielliptic.csv"));
+  simulation<system_t> sim(system, {file_observer});
+  sim.simulate(60.0*60.0*240);
 }

@@ -80,7 +80,8 @@ public:
 
   double integrate(const system_t& system, state_type& state, double start_time, double end_time, double step_size)
   {
-    integrate_const(m_stepper, system, state, start_time, end_time, step_size);
+    integrate_adaptive(make_controlled( 1.0e-6 , 1.0e-6, m_stepper), system, state, start_time, end_time, step_size);
+    // integrate_const(m_stepper, system, state, start_time, end_time, step_size);
     return end_time;
   }
 };

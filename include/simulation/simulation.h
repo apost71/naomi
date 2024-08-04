@@ -15,9 +15,9 @@ class simulation_component
 {
 public:
   virtual ~simulation_component() = default;
-  virtual void initialize(const state_t& state){}
-  virtual void update(const state_t& state){}
-  virtual void terminate(const state_t& state){}
+  virtual void initialize(state_t& state){}
+  virtual void update(state_t& state){}
+  virtual void terminate(state_t& state){}
 };
 
 template<typename system_t>

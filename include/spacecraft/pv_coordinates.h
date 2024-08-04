@@ -8,6 +8,7 @@
 #include <armadillo>
 
 #include <fmt/format.h>
+#include <naomi.h>
 
 class pv_coordinates
 {
@@ -38,22 +39,22 @@ public:
   , _acc(state(arma::span(6, 8))){}
 
 
-  auto get_position() -> arma::vec3&
+  [[nodiscard]] auto get_position() const -> arma::vec3
   {
     return _pos;
   }
 
-  auto get_velocity() -> arma::vec3&
+  [[nodiscard]] auto get_velocity() const -> arma::vec3
   {
     return _vel;
   }
 
-  auto get_acceleration() -> arma::vec3
+  [[nodiscard]] auto get_acceleration() const -> arma::vec3
   {
     return _acc;
   }
 
-  auto to_vec() const -> arma::vec9
+  [[nodiscard]] auto to_vec() const -> naomi::state_type
   {
     const auto pv = join_cols(_pos, _vel);
     auto pva = join_cols(pv, _acc);

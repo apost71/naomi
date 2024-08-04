@@ -16,7 +16,8 @@ add_executable(test_naomi test_naomi.cpp
         observers/test_observer.cpp
         attitude/test_torque_free.cpp
         attitude/test_euler_angles.cpp
-        spacecraft/test_body_shape.cpp)
+        spacecraft/test_body_shape.cpp
+        spacecraft/test_spacecraft_state.cpp)
 target_link_libraries(test_naomi naomi GTest::gtest GTest::gtest_main)
 target_compile_features(test_naomi PUBLIC cxx_std_17)
 

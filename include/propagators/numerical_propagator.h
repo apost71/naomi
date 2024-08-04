@@ -13,6 +13,39 @@ namespace naomi::numeric
 {
 using namespace events;
 using namespace maneuvers;
+
+class propagation_state
+{
+  state_type _state;
+  std::map<
+    std::string,
+    std::pair<arma::span, std::shared_ptr<additional_state_provider>>
+  > _additional_state_providers;
+
+  std::map<std::string, std::pair<arma::span, std::shared_ptr<additional_state_provider>>> map_providers(
+    const std::vector<std::shared_ptr<additional_state_provider>>& additional_providers
+  )
+  {
+    const std::size_t start_idx = 8;
+    std::map<
+      std::string,
+      std::pair<arma::span, std::shared_ptr<additional_state_provider>>
+    > provider_map;
+    for (const auto& provider : additional_providers) {
+      const auto size = provider->get_size();
+      const auto end_idx = start_idx + size;
+      const auto prov_span = arma::span(start_idx + 1, end_idx);
+      provider_map[provider->get_name()] = {prov_span, provider};
+    }
+    return provider_map;
+  }
+
+public:
+  propagation_state(const state_type& state,
+      const std::vector<std::shared_ptr<additional_state_provider>>&
+          additional_state_providers):
+    _state(state), _additional_state_providers(map_providers(additional_state_providers)) {}
+};
 template <typename Stepper>
 class numerical_propagator
 {
@@ -21,6 +54,7 @@ public:
       : m_integrator(other.m_integrator)
       , m_system(other.m_system)
       , m_spacecrafts(other.m_spacecrafts)
+      , _system_eoms(other._system_eoms)
       , m_event_detectors(other.m_event_detectors)
       , m_t(other.m_t)
   {
@@ -29,6 +63,7 @@ public:
       : m_integrator(std::move(other.m_integrator))
       , m_system(std::move(other.m_system))
       , m_spacecrafts(std::move(other.m_spacecrafts))
+      , _system_eoms(std::move(other._system_eoms))
       , m_event_detectors(std::move(other.m_event_detectors))
       , m_t(other.m_t)
   {
@@ -40,6 +75,7 @@ public:
     m_integrator = other.m_integrator;
     m_system = other.m_system;
     m_spacecrafts = other.m_spacecrafts;
+    _system_eoms = other._system_eoms;
     m_event_detectors = other.m_event_detectors;
     m_t = other.m_t;
     return *this;
@@ -51,6 +87,7 @@ public:
     m_integrator = std::move(other.m_integrator);
     m_system = std::move(other.m_system);
     m_spacecrafts = std::move(other.m_spacecrafts);
+    _system_eoms = std::move(other._system_eoms);
     m_event_detectors = std::move(other.m_event_detectors);
     m_t = other.m_t;
     return *this;
@@ -59,6 +96,7 @@ public:
 private:
   integrator<Stepper> m_integrator;
   std::shared_ptr<force_model> m_system;
+  std::shared_ptr<equations_of_motion> _system_eoms;
   std::map<std::string, std::shared_ptr<spacecraft>> m_spacecrafts;
   std::vector<std::shared_ptr<event_detector>> m_event_detectors = {};
   double m_t = 0.0;
@@ -67,16 +105,31 @@ public:
   ~numerical_propagator() = default;
   numerical_propagator() = default;
 
-
-
-  void initialize(const std::shared_ptr<force_model>& system, const std::map<std::string, std::shared_ptr<spacecraft>>& spacecrafts)
+  void initialize(const std::shared_ptr<equations_of_motion>& system_eoms, const std::map<std::string, std::shared_ptr<spacecraft>>& spacecrafts)
   {
-    m_system = system;
+    _system_eoms = system_eoms;
     m_spacecrafts = spacecrafts;
     for (const auto & [fst, sc] : m_spacecrafts) {
       if (sc->get_maneuver_plan() != nullptr) m_event_detectors.emplace_back(sc->get_maneuver_plan());
     }
   }
+
+  std::vector<std::pair<arma::span, std::shared_ptr<additional_state_provider>>> map_providers(
+    const std::vector<std::shared_ptr<additional_state_provider>>& additional_providers
+  )
+    {
+      const std::size_t start_idx = 8;
+      std::vector<
+        std::pair<arma::span, std::shared_ptr<additional_state_provider>>
+      > providers;
+      for (const auto& provider : additional_providers) {
+        const auto size = provider->get_size();
+        const auto end_idx = start_idx + size;
+        const auto prov_span = arma::span(start_idx + 1, end_idx);
+        providers.emplace_back(prov_span, provider);
+      }
+      return providers;
+    }
 
   std::vector<std::shared_ptr<event_detector>> check_events(const state_and_time_type& prev, const state_and_time_type& curr, double t)
   {
@@ -92,24 +145,19 @@ public:
   auto make_system(const std::shared_ptr<force_model>& force_model,
                    const std::shared_ptr<spacecraft>& spacecraft)
   {
-    state_type initial_state = get_initial_state(spacecraft);
-    return std::make_pair(
-        initial_state,
-        [force_model, spacecraft](const auto& x, auto& dxdt, double t)
+    auto system_eoms = _system_eoms;
+    const auto provider_map = spacecraft->get_state().get_provider_mapping();
+    auto initial_state = spacecraft->get_state().get_integrated_state();
+    return [system_eoms, provider_map](const auto& x, auto& dxdt, double t)
         {
-          (*force_model)(x, dxdt, t);
-          std::size_t start_idx = 8;
-          auto addl_state_providers =
-              spacecraft->get_additional_state_providers();
-          for (const auto& addl_states : addl_state_providers) {
-            const auto size = addl_states->get_size();
-            const auto end_idx = start_idx + size;
-            auto state = x(arma::span(start_idx + 1, end_idx));
-            const auto d_state = addl_states->get_derivative(x);
-            dxdt(arma::span(start_idx + 1, end_idx)) = d_state;
-            start_idx = end_idx;
+          for (const auto& [fst, snd] : provider_map) {
+            if (auto eoms = snd->get_eoms(); eoms == nullptr) {
+              dxdt(fst) = system_eoms->get_derivative(x(fst), t);
+            } else {
+              dxdt(fst) = eoms->get_derivative(x(fst), t);
+            }
           }
-        });
+        };
   }
 
   static std::vector<double> get_integration_times(const double t_start,
@@ -126,45 +174,32 @@ public:
     return times;
   }
 
-  static auto get_initial_state(const std::shared_ptr<spacecraft>& spacecraft)
-  {
-    std::size_t size = 6;
-    arma::vec states = {spacecraft->get_state()};
-    for (const auto& p: spacecraft->get_additional_state_providers()) {
-      size += p->get_size();
-      states = join_cols(states, p->get_state());
-    }
-
-    return states;
-  }
-
   void propagate_to(const std::shared_ptr<spacecraft>& spacecraft, double dt)
   {
     auto system = make_system(m_system, spacecraft);
-    double end = dt;
+    const double end = dt;
     auto times = get_integration_times(m_t, end);
     for (std::size_t i = 0; i < times.size() - 1; i++) {
       double start_t = times[i];
       double end_t = times[i + 1];
-      state_type state = join_cols(spacecraft->get_state(), spacecraft->get_attitude());
+      state_type state = spacecraft->get_state().get_integrated_state();
       state_and_time_type prev_state = {state, start_t};
-      start_t = m_integrator.integrate( system.second, state , start_t , end_t , 0.1 );
+      start_t = m_integrator.integrate( system, state , start_t , end_t , 0.1 );
       state_and_time_type new_state = {state, start_t};
       auto active_events = check_events(prev_state, new_state, start_t);
       for (std::shared_ptr<event_detector> e: active_events) {
         // TODO: This wont work with multiple events
-        auto event = m_integrator.find_event_time(system.second, times[i], times[i+1], e, prev_state, 0.1);
+        auto event = m_integrator.find_event_time(system, times[i], times[i+1], e, prev_state, 0.1);
         start_t = event.first;
-        spacecraft->set_state(event.second(arma::span(0, 5)));
-        spacecraft->set_attitude(event.second(arma::span(6, 9)));
+        spacecraft->get_state().set_integrated_state(event.second);
         e->handle_event(spacecraft, start_t);
-        state = join_cols(spacecraft->get_state(), spacecraft->get_attitude());
+        spacecraft->update(event.first);
+        state = spacecraft->get_state().get_integrated_state();
         std::cout << "event occurred at: " << start_t << "state: " << state << "\n";
       }
-      m_integrator.integrate( system.second, state , start_t , end_t , 0.1 );
-      // spacecraft->update(state);
-      spacecraft->set_state(state(arma::span(0, 5)));
-      spacecraft->set_attitude(state(arma::span(6, 9)));
+      m_integrator.integrate( system, state , start_t , end_t , 0.1 );
+      spacecraft->get_state().set_integrated_state(state);
+      spacecraft->update(end_t);
     }
   }
 
@@ -188,7 +223,6 @@ public:
     return propagate_to(m_t + dt);
   }
 };
-
 
 
 typedef

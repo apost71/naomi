@@ -87,7 +87,7 @@ TEST(NumericalPropagatorTest, CircularOrbitPropagation)
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
 
-  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  std::shared_ptr<equations_of_motion> two_body_forces = std::make_shared<two_body_force_model_eoms>(earth_body);
   typedef numerical_propagator<rk_dopri5_stepper> propagator;
   physical_system<propagator> system(sc, two_body_forces);
   std::fstream fout;
@@ -98,7 +98,7 @@ TEST(NumericalPropagatorTest, CircularOrbitPropagation)
   fout << "x,y,z,vx,vy,vz\n";
 
 
-  auto curr_state = sc->get_state();
+  auto curr_state = sc->get_state().get_integrated_state();
   fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
   fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
 
@@ -106,7 +106,7 @@ TEST(NumericalPropagatorTest, CircularOrbitPropagation)
   std::cout << "Starting propagation..\n";
   while (t < 60.0*60.0*12) {
     system.simulate_by(10.0);
-    curr_state = sc->get_state();
+    curr_state = sc->get_state().get_integrated_state();
     std::cout << t << "\n";
     fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
     fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
@@ -124,7 +124,7 @@ TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
   std::vector<spacecraft> spacecrafts;
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state, 100.0);
 
-  std::shared_ptr<force_model> two_body_forces = std::make_shared<two_body_force_model>(earth_body);
+  std::shared_ptr<equations_of_motion> two_body_forces = std::make_shared<two_body_force_model_eoms>(earth_body);
   typedef numerical_propagator<rk_dopri5_stepper> propagator;
   physical_system<propagator> system(sc, two_body_forces);
   std::fstream fout;
@@ -134,7 +134,7 @@ TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
 
   fout << "x,y,z,vx,vy,vz\n";
 
-  auto curr_state = sc->get_state();
+  auto curr_state = sc->get_state().get_integrated_state();
   fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
   fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";
 
@@ -142,7 +142,7 @@ TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
   std::cout << "Starting propagation..\n";
   while (t < 60.0*60.0*24) {
     system.simulate_by(10.0);
-    curr_state = sc->get_state();
+    curr_state = sc->get_state().get_integrated_state();
     // std::cout << t << "\n";
     fout << curr_state[0]  << "," << curr_state[1] << "," << curr_state[2] << ",";
     fout << curr_state[3]  << "," << curr_state[4] << "," << curr_state[5] << "\n";

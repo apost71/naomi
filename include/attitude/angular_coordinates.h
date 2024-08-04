@@ -5,8 +5,10 @@
 #ifndef ANGULAR_COORDINATES_H
 #define ANGULAR_COORDINATES_H
 #include "math/quaternion.h"
+#include <naomi.h>
 
 using namespace naomi::math::quaternion;
+using namespace naomi;
 
 class angular_coordinates
 {
@@ -23,6 +25,11 @@ public:
   static angular_coordinates identity()
   {
     return angular_coordinates({1, 0, 0, 0});
+  }
+
+  auto to_vec() -> state_type&
+  {
+   return _rotation;
   }
 };
 

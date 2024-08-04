@@ -72,9 +72,11 @@ public:
   virtual arma::vec get_potential_partial(arma::vec& pos)
   {
     double c = m_mu * m_higher_order_terms[0] * pow(m_eq_radius, 2) / 2;
-    double du_x = m_potential_partial_x_visitor.call({pos[0], pos[1], pos[2], c});
-    double du_y = m_potential_partial_y_visitor.call({pos[0], pos[1], pos[2], c});
-    double du_z = m_potential_partial_z_visitor.call({pos[0], pos[1], pos[2], c});
+    const double du_x =
+        m_potential_partial_x_visitor.call({pos[0], pos[1], pos[2], c});
+    const double du_y =
+        m_potential_partial_y_visitor.call({pos[0], pos[1], pos[2], c});
+    const double du_z = m_potential_partial_z_visitor.call({pos[0], pos[1], pos[2], c});
 
     arma::vec result = { du_x, du_y, du_z };
     return result;
@@ -82,12 +84,12 @@ public:
   virtual Eigen::Vector3d get_potential_partial_derivative(Eigen::Vector3d position) = 0;
   virtual arma::vec get_potential_partial_derivative(arma::vec position) = 0;
 
-  auto get_mu() const -> double
+  [[nodiscard]] auto get_mu() const -> double
   {
     return m_mu;
   }
 
-  auto get_sphere_of_influence() const -> double
+  [[nodiscard]] auto get_sphere_of_influence() const -> double
   {
     return m_soi;
   }

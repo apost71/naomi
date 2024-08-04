@@ -10,7 +10,7 @@ on:
       - .github/workflows/ci.yaml
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -29,15 +29,6 @@ jobs:
         uses: actions/checkout@v4.1.7
         with:
           submodules: 'true'
-
-#      - name: Cache
-#        uses: actions/cache@v3
-#        with:
-#          path: |
-#            /usr/local/lib
-#          key: ${{ runner.os }}-${{ matrix.compiler }}-${{ env.BUILD_TYPE }}-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('./vcpkg.json')}}
-#          restore-keys: |
-#            ${{ runner.os }}-${{ env.BUILD_TYPE }}-
 
       - name: Setup Cpp
         uses: aminya/setup-cpp@v1
@@ -60,11 +51,6 @@ jobs:
               liblapack-dev libarpack2-dev libsuperlu-dev libarmadillo-dev libgtest-dev
           
           sudo apt-get install libgmp-dev libflint-dev libmpc-dev libomp-dev llvm
-#          cd symengine
-#          mkdir build && cd build
-#          cmake -DWITH_GMP=on -DWITH_MPFR=on -DWITH_MPC=on -DINTEGER_CLASS=flint -DWITH_LLVM=on -DWITH_SYMENGINE_THREAD_SAFE=on -DWITH_OPENMP=on ..
-#          sudo make -j 2
-#          sudo make install
 
       - name: ccache
         uses: hendrikmuhs/ccache-action@v1.2

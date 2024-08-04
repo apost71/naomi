@@ -5,62 +5,40 @@
 #ifndef TORQUE_FREE_H
 #define TORQUE_FREE_H
 
-#include "attitude_provider.h"
 #include "frames/transforms.h"
 #include "math/vector_utils.h"
+#include "spacecraft/state_provider.h"
 
 namespace naomi::attitude
 {
 using namespace math;
 
-class torque_free_attitude final :
-  public attitude_provider,
-  public additional_state_provider
+class torque_free_eoms final :
+  public forces::equations_of_motion
 {
-  static arma::vec3 compute_angular_velocity(const state_type& state)
-  {
-    const auto t = eci2ric(state(arma::span(0, 5)));
-    const state_type r = state(arma::span(0, 2));
-    const state_type v = state(arma::span(3, 5));
-    const state_type w = t * cross(r, v) / dot(r, r);
-    return w;
-  }
+
+  arma::mat33 _inertia_matrix;
+
 public:
-  explicit torque_free_attitude(const arma::mat33& inertia_matrix): attitude_provider(inertia_matrix), additional_state_provider(arma::vec4()){}
-  ~torque_free_attitude() override = default;
-  [[nodiscard]] state_type get_derivative(
-      const state_type& state) const override
+  explicit torque_free_eoms(const arma::mat33& inertia_matrix): _inertia_matrix(inertia_matrix){}
+  ~torque_free_eoms() override = default;
+  [[nodiscard]] state_type get_derivative(const state_type& state, double t) const override
   {
-    const auto w = compute_angular_velocity(state);
+    const auto q = state(arma::span(0, 3));
+    const auto w = state(arma::span(4, 6));
     const state_type w4 = {0, w[0], w[1], w[2]};
-    const quaternion_type q_state = state(arma::span(6, 9));
-    state_type res = 0.5 * q_skew(q_state) * w4;
-    return res;
-    // return {
-    //   -(m_inertia_matrix(2, 2) - m_inertia_matrix(1, 1))*w[1]*w[2] / m_inertia_matrix(0, 0),
-    //   -(m_inertia_matrix(0, 0) - m_inertia_matrix(2, 2))*w[2]*w[0] / m_inertia_matrix(1, 1),
-    //   -(m_inertia_matrix(1, 1) - m_inertia_matrix(0, 0))*w[0]*w[1] / m_inertia_matrix(2, 2),
-    // };
-  }
-
-  quaternion_type get_rotation() override
-  {
-    quaternion_type res;
+    const state_type q_dot = 0.5 * q_skew(q) * w4;
+    const arma::vec3 w_dot = {
+      -(_inertia_matrix(2, 2) - _inertia_matrix(1, 1))*w[1]*w[2] / _inertia_matrix(0, 0),
+      -(_inertia_matrix(0, 0) - _inertia_matrix(2, 2))*w[2]*w[0] / _inertia_matrix(1, 1),
+      -(_inertia_matrix(1, 1) - _inertia_matrix(0, 0))*w[0]*w[1] / _inertia_matrix(2, 2),
+    };
+    state_type res(10);
+    res(arma::span(0, 3)) = q_dot;
+    res(arma::span(4, 6)) = w_dot;
     return res;
   }
 
-  state_type get_angular_momentum() override
-  {
-    return {1, 2, 3};
-  }
-
-  state_type get_angular_velocity() override { return {1, 2, 3}; }
-  void initialize(const spacecraft_state& state) override
-  {
-
-  }
-  void update(const spacecraft_state& state) override {}
-  void terminate(const spacecraft_state& state) override {}
 };
 }
 #endif //TORQUE_FREE_H

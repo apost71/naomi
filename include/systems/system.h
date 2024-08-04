@@ -8,6 +8,7 @@
 #include <utility>
 #include <spacecraft/spacecraft.h>
 #include "forces/force_model.h"
+#include <fmt/core.h>
 
 namespace naomi
 {
@@ -26,7 +27,7 @@ template <typename Propagator>
 class physical_system
 {
   std::map<std::string, std::shared_ptr<spacecraft>> m_spacecrafts;
-  std::shared_ptr<force_model> m_force_model;
+  std::shared_ptr<equations_of_motion> _system_eoms;
   Propagator m_propagator;
 
   double m_t = 0;
@@ -37,45 +38,45 @@ public:
   /**
    * @brief
    * @param spacecraft
-   * @param force_model
+   * @param system_eoms
    */
-  physical_system(const spacecraft& spacecraft, const std::shared_ptr<force_model>& force_model): physical_system({spacecraft}, force_model){
+  physical_system(const spacecraft& spacecraft, const std::shared_ptr<equations_of_motion>& system_eoms): physical_system({spacecraft}, system_eoms){
   }
 
   /**
    * @brief
    * @param spacecraft
-   * @param force_model
+   * @param system_eoms
    */
-  physical_system(const std::shared_ptr<spacecraft>& spacecraft, const std::shared_ptr<force_model>& force_model): physical_system({spacecraft}, force_model){
+  physical_system(const std::shared_ptr<spacecraft>& spacecraft, const std::shared_ptr<equations_of_motion>& system_eoms): physical_system({spacecraft}, system_eoms){
   }
 
   /**
    * @brief
    * @param spacecrafts
-   * @param force_model
+   * @param system_eoms
    */
-  physical_system(const std::initializer_list<spacecraft>& spacecrafts, const std::shared_ptr<force_model>& force_model):
-    m_force_model(force_model)
+  physical_system(const std::initializer_list<spacecraft>& spacecrafts, const std::shared_ptr<equations_of_motion>& system_eoms):
+    _system_eoms(system_eoms)
   {
     for (const spacecraft& s: spacecrafts) {
       m_spacecrafts[s.get_identifier()] = std::make_shared<spacecraft>(s);
     }
-    m_propagator.initialize(m_force_model, m_spacecrafts);
+    m_propagator.initialize(_system_eoms, m_spacecrafts);
   }
 
   /**
    * @brief
    * @param spacecrafts
-   * @param force_model
+   * @param system_eoms
    */
-  physical_system(const std::initializer_list<std::shared_ptr<spacecraft>>& spacecrafts, const std::shared_ptr<force_model>& force_model):
-  m_force_model(force_model)
+  physical_system(const std::initializer_list<std::shared_ptr<spacecraft>>& spacecrafts, const std::shared_ptr<equations_of_motion>& system_eoms):
+  _system_eoms(system_eoms)
   {
     for (const std::shared_ptr<spacecraft>& s: spacecrafts) {
       m_spacecrafts[s->get_identifier()] = s;
     }
-    m_propagator.initialize(m_force_model, m_spacecrafts);
+    m_propagator.initialize(_system_eoms, m_spacecrafts);
   }
 
   /**
@@ -122,6 +123,7 @@ public:
    */
   double simulate_to(double dt)
   {
+    // fmt::print("Simulating to: {}\n", dt);
     m_t = m_propagator.propagate_to(dt);
     return m_t;
   }

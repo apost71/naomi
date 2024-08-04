@@ -6,11 +6,11 @@
 #include <constants.h>
 
 #include <iostream>
-namespace naomi::examples
+
+using namespace naomi;
+
+int main(int, char*[])
 {
-  int main(int, char*[])
-  {
-    std::cout << constants::EARTH_MU << std::endl;
-    return 0;
-  }
+  std::cout << constants::EARTH_MU << std::endl;
+  return 0;
 }

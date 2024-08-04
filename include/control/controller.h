@@ -42,14 +42,14 @@ public:
 
 };
 
-class spacecraft_subsystem: simulation_component<spacecraft_state>
-{
-  std::shared_ptr<controller> m_controller = nullptr;
-  std::shared_ptr<attitude::additional_state_provider> m_state_provider = nullptr;
-
-public:
-  ~spacecraft_subsystem() override = default;
-};
+// class spacecraft_subsystem: simulation_component<spacecraft_state>
+// {
+//   std::shared_ptr<controller> m_controller = nullptr;
+//   std::shared_ptr<attitude::additional_state_provider> m_state_provider = nullptr;
+//
+// public:
+//   ~spacecraft_subsystem() override = default;
+// };
 
 }
 #endif //SPACECRAFT_CONTROLLER_H

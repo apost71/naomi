@@ -13,7 +13,7 @@ find_package(Eigen3)
 find_package(SymEngine 0.1.0 REQUIRED CONFIG
         PATH_SUFFIXES lib/cmake/symengine CMake/)
 find_package(Armadillo)
-set(CMAKE_BUILD_TYPE ${SYMENGINE_BUILD_TYPE})
+#set(CMAKE_BUILD_TYPE ${SYMENGINE_BUILD_TYPE})
 set(CMAKE_CXX_FLAGS_RELEASE ${SYMENGINE_CXX_FLAGS_RELEASE})
 set(CMAKE_CXX_FLAGS_DEBUG ${SYMENGINE_CXX_FLAGS_DEBUG})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SYMENGINE_CXX_FLAGS} -std=c++17")
@@ -39,7 +39,6 @@ add_library(naomi src/naomi.cpp
         include/propagators/event_handler.h
         include/maneuvers/maneuver_plan.h
         include/control/controller.h
-        src/maneuvers/maneuver_plan.cpp
         include/observers/simulation_observer.h
         include/simulation/simulation.h
         src/observers/results_csv_writer_observer.cpp
@@ -60,7 +59,12 @@ add_library(naomi src/naomi.cpp
         include/frames/frame.h
         include/spacecraft/spacecraft_subsystem.h
         include/attitude/spacecraft_attitude_subsystem.h
-        include/attitude/angular_coordinates.h)
+        include/attitude/angular_coordinates.h
+        include/spacecraft/state_provider.h
+        include/spacecraft/pv_coordinates_provider.h
+        include/attitude/torque_free_provider.h
+        include/attitude/constant_attitude_provider.h
+        include/attitude/constant_attitude_provider.h)
 target_compile_features(naomi PUBLIC cxx_std_17)
 include_directories(${SYMENGINE_INCLUDE_DIRS})
 target_include_directories(naomi PUBLIC include )
@@ -75,13 +79,11 @@ target_link_libraries(naomi
 set_target_properties(naomi PROPERTIES PUBLIC_HEADER "include/naomi.h")
 
 if (NOT BUILD_TESTING STREQUAL OFF)
-#    enable_testing()
     add_subdirectory(tests)
 endif()
 
-
 install(TARGETS naomi)
 
-#if(BUILD_EXAMPLES)
-#add_subdirectory(examples)
-#endif()
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()

@@ -23,11 +23,11 @@ public:
 class maneuver_plan : public event_detector
 {
   std::vector<maneuver> m_maneuvers;
+  std::vector<maneuver> _active_maneuvers;
   std::size_t stage = 0;
   double m_start_time = 0.0;
 
 public:
-  maneuver_plan() = default;
   explicit maneuver_plan(const std::vector<maneuver>& maneuvers)
       : event_detector(ALL)
       , m_maneuvers(maneuvers)
@@ -72,7 +72,7 @@ public:
 
   auto get_maneuvers() -> std::vector<maneuver> { return m_maneuvers; }
 
-  auto get_total_delta_v() -> double
+  [[nodiscard]] auto get_total_delta_v() const -> double
   {
     double total = 0;
     for (const auto& man : m_maneuvers) {
@@ -100,9 +100,19 @@ public:
     return m_maneuvers.at(stage).get_trigger()->g(sv);
   }
 
+  state_type get_control_input(double dt, spacecraft_state& state)
+  {
+    state_type control_inp(9);
+    for (const auto& maneuver: _active_maneuvers) {
+      control_inp += maneuver.get_control_input(dt, state);
+    }
+    _active_maneuvers.clear();
+    return control_inp;
+  }
+
   void handle_event(const std::shared_ptr<spacecraft>& sc, double t) override
   {
-    execute_maneuver(sc);
+    _active_maneuvers.push_back(m_maneuvers.at(stage++));
     if (stage >= m_maneuvers.size()) m_is_active = false;
   }
 };

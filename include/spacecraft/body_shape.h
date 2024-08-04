@@ -5,17 +5,6 @@
 #ifndef BODY_SHAPE_H
 #define BODY_SHAPE_H
 
-#define MAX_VERTS 100     /* maximum number of polyhedral vertices */
-#define MAX_FACES 100     /* maximum number of polyhedral faces */
-#define MAX_POLYGON_SZ 10 /* maximum number of verts per polygonal face */
-
-#define X 0
-#define Y 1
-#define Z 2
-
-#define SQR(x) ((x)*(x))
-#define CUBE(x) ((x)*(x)*(x))
-
 #include <armadillo>
 #include <array>
 #include <cstddef>
@@ -24,7 +13,16 @@
 
 #include <fmt/core.h>
 
-#include "math/volume_integrals.h"
+#define MAX_VERTS 100     /* maximum number of polyhedral vertices */
+#define MAX_FACES 100     /* maximum number of polyhedral faces */
+#define MAX_POLYGON_SZ 10 /* maximum number of verts per polygonal face */
+
+constexpr int X = 0;
+constexpr int Y = 1;
+constexpr int Z = 2;
+
+#define SQR(x) ((x)*(x))
+#define CUBE(x) ((x)*(x)*(x))
 
 namespace naomi::geometry
 {

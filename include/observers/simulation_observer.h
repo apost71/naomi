@@ -4,9 +4,11 @@
 
 #ifndef SIMULATION_OBSERVER_H
 #define SIMULATION_OBSERVER_H
-#include <utility>
 #include <memory>
+#include <utility>
+
 #include "propagators/event_detector.h"
+#include "spacecraft/pv_coordinates.h"
 
 namespace naomi::observers
 {
@@ -62,12 +64,14 @@ public:
   void handle_observe_state(const std::shared_ptr<system_t>& system) override
   {
     auto spacecrafts = system->get_spacecrafts();
-    for (auto i = spacecrafts.begin(); i != spacecrafts.end(); i++) {
-      auto state = i->second->get_state();
-      auto attitude = i->second->get_attitude();
-      m_fout << i->first << ",";
-      m_fout << state[0]  << "," << state[1] << "," << state[2] << ",";
-      m_fout << state[3]  << "," << state[4] << "," << state[5] << ",";
+    for (const auto& [id, sc]: spacecrafts) {
+      pv_coordinates pv = sc->get_pv_coordinates();
+      auto pos = pv.get_position();
+      auto vel = pv.get_velocity();
+      auto attitude = sc->get_attitude();
+      m_fout << id << ",";
+      m_fout << pos[0]  << "," << pos[1] << "," << pos[2] << ",";
+      m_fout << pos[3]  << "," << pos[4] << "," << pos[5] << ",";
       m_fout << attitude[0] << "," << attitude[1] << "," << attitude[2] << "," << attitude[3] << "\n";
     }
   }
