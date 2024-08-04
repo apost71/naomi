@@ -5,3 +5,4 @@ plotly
 mkdocs
 mkdocs-material
 mkdoxy
+mkdocs-open-in-new-tab
