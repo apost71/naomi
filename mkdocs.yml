@@ -89,11 +89,11 @@ markdown_extensions:
 
 nav:
   - Home:
-      - pages/index.md
+      - index.md
   - Usage:
-      - pages/index.md
-      - Basic Usage: pages/basic_usage.md
-      - Advanced Usage: pages/propagation.md
+      - index.md
+      - Basic Usage: basic_usage.md
+      - Advanced Usage: propagation.md
 
   - API Reference:
       - "Links": "naomi/links.md"
