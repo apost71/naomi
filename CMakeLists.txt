@@ -42,7 +42,6 @@ add_library(naomi src/naomi.cpp
         include/observers/simulation_observer.h
         include/simulation/simulation.h
         src/observers/results_csv_writer_observer.cpp
-        examples/simulation/main.cpp
         include/forces/two_body_rot_force_model.h
         include/attitude/attitude_provider.h
         include/attitude/torque_free.h
@@ -78,12 +77,13 @@ target_link_libraries(naomi
 
 set_target_properties(naomi PROPERTIES PUBLIC_HEADER "include/naomi.h")
 
+if(BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()
+
 if (NOT BUILD_TESTING STREQUAL OFF)
     add_subdirectory(tests)
 endif()
 
 install(TARGETS naomi)
 
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
