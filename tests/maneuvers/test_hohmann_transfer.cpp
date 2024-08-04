@@ -74,7 +74,7 @@ TEST(TestHohmann, TestPropagation)
   typedef physical_system<propagator> system_t;
   const auto system = std::make_shared<system_t>(sc, two_body_forces);
   auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
-        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/test_hohmann_transfer.csv"));
+        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/tmp/test_hohmann_transfer.csv"));
   simulation<system_t> sim(system, {file_observer});
   sim.simulate(60.0*60.0*32);
 }
@@ -95,7 +95,7 @@ TEST(TestHohmann, TestPropagationInclined)
   auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
       observers::results_csv_writer_observer<system_t>(
           10.0,
-          "/home/alexpost/code/naomi/test_hohmann_transfer_inclined.csv"));
+          "/home/alexpost/code/naomi/tmp/test_hohmann_transfer_inclined.csv"));
 
   const auto system = std::make_shared<system_t>(sc, two_body_forces);
   simulation<system_t> sim(system, {file_observer});
@@ -117,7 +117,7 @@ TEST(TestBiEllipticHohmann, TestSomethingElse)
   typedef physical_system<propagator> system_t;
   const auto system = std::make_shared<system_t>(sc, two_body_forces);
   auto file_observer = std::make_shared<results_csv_writer_observer<system_t>>(
-        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/test_hohmann_transfer_bielliptic.csv"));
+        observers::results_csv_writer_observer<system_t>(10.0, "/home/alexpost/code/naomi/tmp/test_hohmann_transfer_bielliptic.csv"));
   simulation<system_t> sim(system, {file_observer});
   sim.simulate(60.0*60.0*240);
 }
