@@ -26,9 +26,9 @@ class controller
 {
 public:
   virtual ~controller() = default;
-  virtual control_input get_control_input(const state_type& state, const state_type& attitude,
+  virtual control_input get_control_input(const vector_type& state, const vector_type& attitude,
                                              double t) = 0;
-  virtual void initialize(const state_type& state, const state_type& attitude, double t) = 0;
+  virtual void initialize(const vector_type& state, const vector_type& attitude, double t) = 0;
 
   /**
    * @brief
@@ -38,7 +38,7 @@ public:
    * @param t current time
    * @return control input
    */
-  virtual state_type get_desired_state(const state_type& state, const state_type& attitude, double t) = 0;
+  virtual vector_type get_desired_state(const vector_type& state, const vector_type& attitude, double t) = 0;
 
 };
 

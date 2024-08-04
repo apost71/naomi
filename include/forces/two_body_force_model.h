@@ -24,8 +24,8 @@ public:
 
   ~two_body_force_model() override = default;
 
-  void operator()(const state_type& x,
-                  state_type& dxdt,
+  void operator()(const vector_type& x,
+                  vector_type& dxdt,
                   double t) const override
   {
     arma::vec3 pos = x.subvec(0, 2);
@@ -51,7 +51,7 @@ public:
 
   ~two_body_force_model_eoms() override = default;
 
-  [[nodiscard]] state_type get_derivative(const state_type& state, double t) const override
+  [[nodiscard]] vector_type get_derivative(const vector_type& state, double t) const override
   {
     arma::vec3 pos = state.subvec(0, 2);
     const arma::vec3 vel = state.subvec(3, 5);

@@ -25,7 +25,7 @@ typedef std::shared_ptr<attitude_provider> att_provider_ptr;
 TEST(TestSimulation, TestSimulationInitialization)
 {
   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
 
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
@@ -45,10 +45,10 @@ TEST(TestSimulation, TestSimulationInitialization)
 TEST(TestSimulation, TestAttitude)
 {
   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   body_shape geom = body_shape::make_rectangle(1, 1, 1, 100);
-  state_type initial_attitude = {1, 0, 0, 0};
+  vector_type initial_attitude = {1, 0, 0, 0};
   std::shared_ptr<attitude_provider> torque_free_attitude =
     std::make_shared<torque_free_attitude_provider>(
       torque_free_attitude_provider(geom.get_inertia_tensor(), {1, 0, 0, 0}, pv_coordinates(state_vec))
@@ -68,10 +68,10 @@ TEST(TestSimulation, TestAttitude)
 // TEST(TestSimulation, TestStructure)
 // {
 //   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-//   state_type state_vec = get_circular_orbit(r);
+//   vector_type state_vec = get_circular_orbit(r);
 //   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
 //   body_shape geom = body_shape::make_rectangle(1, 1, 1, 100);
-//   state_type initial_attitude = {1, 0, 0, 0};
+//   vector_type initial_attitude = {1, 0, 0, 0};
 //
 //   std::shared_ptr<attitude_provider> torque_free_attitude =
 //     std::make_shared<attitude::torque_free_attitude>(

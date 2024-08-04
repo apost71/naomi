@@ -27,7 +27,7 @@ public:
     return angular_coordinates({1, 0, 0, 0});
   }
 
-  auto to_vec() -> state_type&
+  auto to_vec() -> vector_type&
   {
    return _rotation;
   }

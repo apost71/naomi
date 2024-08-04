@@ -22,9 +22,9 @@ TEST(TestOrbitUtils, CircularOrbitVelocity)
   arma::vec3 r {6878000.0, 0.0, 0.0};
   arma::vec3 r2 {3900000.0, 3900000.0, 3900000.0};
 
-  state_type s = get_circular_orbit(r);
+  vector_type s = get_circular_orbit(r);
   std::cout << s << "\n";
-  state_type s2 = get_circular_orbit(r2);
+  vector_type s2 = get_circular_orbit(r2);
   std::cout << s2 << "\n";
 }
 
@@ -108,7 +108,7 @@ TEST(TestKeplerian, CircularOrbitFromKepOE)
   c.print("state = ");
 
   arma::vec3 r = {initial_r, 0, 0};
-  state_type sv = get_circular_orbit(r);
+  vector_type sv = get_circular_orbit(r);
   sv(arma::span(0, 2)).print("pos = ");
   sv(arma::span(3, 5)).print("vel = ");
 }
@@ -125,10 +125,10 @@ TEST(TestKeplerian, TestInitFromSMA)
 {
   const double initial_r = 6378000 + 250000;
   const keplerian_orbit kep(initial_r);
-  const state_type state = kep.to_cartesian();
+  const vector_type state = kep.to_cartesian();
 
   const arma::vec3 expected_pos = {initial_r, 0, 0};
-  const state_type expected_state = get_circular_orbit(expected_pos);
+  const vector_type expected_state = get_circular_orbit(expected_pos);
   for (int i = 0; i < 6; i ++) {
     EXPECT_NEAR(state[i], expected_state[i], 1e-10);
   }

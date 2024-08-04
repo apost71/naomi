@@ -24,8 +24,8 @@ public:
 
   ~two_body_rot_force_model() override = default;
 
-  void operator()(const state_type& x,
-                  state_type& dxdt,
+  void operator()(const vector_type& x,
+                  vector_type& dxdt,
                   double t) const override
   {
     arma::vec3 pos = x.subvec(0, 2);

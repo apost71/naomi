@@ -10,7 +10,7 @@ namespace naomi::frames
 class frame
 {
 public:
-  virtual state_type get_transform_to(const frame& other) = 0;
+  virtual vector_type get_transform_to(const frame& other) = 0;
 };
 }
 #endif //FRAME_H

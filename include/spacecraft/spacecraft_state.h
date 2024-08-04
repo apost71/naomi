@@ -75,7 +75,7 @@ public:
   {
     auto integrated_providers = get_integrated_providers();
     std::size_t start_idx = 0;
-    state_type state;
+    vector_type state;
     std::vector<
       std::pair<
         arma::span,
@@ -93,9 +93,9 @@ public:
     return _integrated_state_idxs;
   }
 
-  state_type get_integrated_state()
+  vector_type get_integrated_state()
   {
-    state_type state;
+    vector_type state;
     for (const auto& [spn, prv] : _integrated_state_idxs) {
       auto int_state = prv->get_integrated_state();
       state.insert_rows(spn.a, int_state);
@@ -103,7 +103,7 @@ public:
     return state;
   }
 
-  void set_integrated_state(const state_type& state)
+  void set_integrated_state(const vector_type& state)
   {
     for (const auto& [spn, prv] : _integrated_state_idxs) {
       prv->set_integrated_state(state(spn));

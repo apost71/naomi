@@ -16,7 +16,7 @@ namespace naomi::numeric
 using namespace events;
 using namespace forces;
 
-typedef std::function<void(const state_type&, state_type&, double)> system_t;
+typedef std::function<void(const vector_type&, vector_type&, double)> system_t;
 
 template< class Stepper>
 class integrator
@@ -52,14 +52,14 @@ public:
   ~ integrator() = default;
   integrator() = default;
 
-  std::pair<double, state_type> find_event_time(const system_t& system, double start_time, double end_time, std::shared_ptr<event_detector> e, state_and_time_type state, double step_size)
+  std::pair<double, vector_type> find_event_time(const system_t& system, double start_time, double end_time, std::shared_ptr<event_detector> e, state_and_time_type state, double step_size)
   {
     auto stepper = make_dense_output(1.0e-6, 1.0e-6, Stepper());
-    state_type s = state.first;
+    vector_type s = state.first;
     stepper.initialize(s, start_time, end_time-start_time);
     stepper.do_step(system);
     double mid_time;
-    state_type next_state = s;
+    vector_type next_state = s;
     while(std::abs(end_time - start_time) > 1e-6) {
       mid_time = 0.5 * (start_time + end_time);  // get the mid point time
       stepper.calc_state(mid_time, next_state); // obtain the corresponding state
@@ -78,7 +78,7 @@ public:
     return {mid_time, s};
   }
 
-  double integrate(const system_t& system, state_type& state, double start_time, double end_time, double step_size)
+  double integrate(const system_t& system, vector_type& state, double start_time, double end_time, double step_size)
   {
     integrate_adaptive(make_controlled( 1.0e-6 , 1.0e-6, m_stepper), system, state, start_time, end_time, step_size);
     // integrate_const(m_stepper, system, state, start_time, end_time, step_size);

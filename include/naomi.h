@@ -20,7 +20,7 @@
 
 namespace naomi
 {
-typedef arma::vec state_type;
+typedef arma::vec vector_type;
 typedef arma::vec6 pv_state_type;
 typedef arma::vec9 pva_state_type;
 typedef arma::vec4 quaternion_type;

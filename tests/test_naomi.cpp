@@ -27,7 +27,6 @@
 #include "naomi.h"
 #include "orbits/orbits.h"
 #include "propagators/numerical_propagator.h"
-#include "spacecraft/state_vector.h"
 #include "systems/system.h"
 
 using namespace naomi;
@@ -83,7 +82,7 @@ TEST(HigherOrderGravityTest, PartialDerivative)
 TEST(NumericalPropagatorTest, CircularOrbitPropagation)
 {
   arma::vec r {3900000.0, 3900000.0, 3900000.0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state_vec, 100.0);
 
@@ -118,8 +117,8 @@ TEST(NumericalPropagatorTest, EllipticalOrbitPropagation)
 {
   arma::vec3 r = {1000000, 5000000, 7000000};
   arma::vec3 v = {3000, 4000, 5000};
-  state_type state = join_cols(r, v);
-  // state_type state = get_circular_orbit(r);
+  vector_type state = join_cols(r, v);
+  // vector_type state = get_circular_orbit(r);
   std::shared_ptr<celestial_body> earth_body = std::make_shared<earth>();
   std::vector<spacecraft> spacecrafts;
   std::shared_ptr<spacecraft> sc = std::make_shared<spacecraft>("test", state, 100.0);

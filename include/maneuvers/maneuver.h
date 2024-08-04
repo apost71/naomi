@@ -49,13 +49,13 @@ public:
     return m_direction;
   }
 
-  [[nodiscard]] state_type get_control_input(double dt, spacecraft_state& state) const
+  [[nodiscard]] vector_type get_control_input(double dt, spacecraft_state& state) const
   {
     const auto dv = get_delta_v();
     auto curr_pva = state.get_state_provider()->get_pv_coordinates().to_vec();
-    state_type curr_pv = curr_pva(arma::span(0, 5));
+    vector_type curr_pv = curr_pva(arma::span(0, 5));
     const auto eci_control = eci2ric(curr_pv(arma::span(0, 5))) * dv;
-    state_type control_inp(9);
+    vector_type control_inp(9);
     control_inp(arma::span(3, 5)) = eci_control;
 
     return control_inp;

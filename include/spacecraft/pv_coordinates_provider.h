@@ -23,7 +23,7 @@ public:
   ~pv_coordinates_provider() override = default;
   pv_coordinates get_pv_coordinates() override { return _state; }
 
-  state_type get_integrated_state() override
+  vector_type get_integrated_state() override
   {
     return _state.to_vec();
   }
@@ -33,7 +33,7 @@ public:
     return 9;
   }
 
-  void set_integrated_state(const state_type& state) override
+  void set_integrated_state(const vector_type& state) override
   {
     _state = pv_coordinates(state);
   }
@@ -43,10 +43,10 @@ public:
     return _eoms;
   }
 
-  void apply_control(const state_type& control) override
+  void apply_control(const vector_type& control) override
   {
     const auto curr_state = _state.to_vec();
-    const state_type updated_state = curr_state + control;
+    const vector_type updated_state = curr_state + control;
     _state = pv_coordinates(updated_state);
   }
 };

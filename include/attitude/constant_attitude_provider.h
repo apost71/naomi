@@ -17,11 +17,11 @@ public:
   explicit constant_attitude_provider(const quaternion_type& q): _attitude(q){}
   ~constant_attitude_provider() override = default;
   quaternion_type get_rotation() override { return _attitude; }
-  state_type get_angular_momentum() override
+  vector_type get_angular_momentum() override
   {
     return {0, 0, 0};
   };
-  state_type get_angular_velocity() override
+  vector_type get_angular_velocity() override
   {
     return {0, 0, 0};
   };

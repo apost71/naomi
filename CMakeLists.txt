@@ -24,7 +24,6 @@ add_library(naomi src/naomi.cpp
         include/constants.h
         include/integrators/integrator.h
         include/spacecraft/spacecraft.h
-        include/spacecraft/state_vector.h
         include/propagators/numerical_propagator.h
         include/orbits/orbits.h
         include/orbits/keplerian.h

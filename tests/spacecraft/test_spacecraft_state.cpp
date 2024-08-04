@@ -19,7 +19,7 @@ using namespace std;
 TEST(TestSpacecraftState, TestIntegratedStates)
 {
   att_provider_ptr attitude_prov = make_shared<constant_attitude_provider>();
-  state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(state_type({1, 2, 3, 4, 5, 6})));
+  state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(vector_type({1, 2, 3, 4, 5, 6})));
   auto state = spacecraft_state(state_prov, attitude_prov, 100.0);
   const auto vec = state.get_integrated_state();
   EXPECT_EQ(vec.size(), 9);
@@ -27,11 +27,11 @@ TEST(TestSpacecraftState, TestIntegratedStates)
 
 TEST(TestSpacecraftState, TestIntegratedStatesAttitude)
 {
-  const state_type state_vec = {1, 2, 3, 4, 5, 6};
+  const vector_type state_vec = {1, 2, 3, 4, 5, 6};
   const att_provider_ptr attitude_prov =
       make_shared<torque_free_attitude_provider>(torque_free_attitude_provider(
           arma::mat33(), {1, 2, 3, 4}, pv_coordinates(state_vec)));
-  const state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(state_type({1, 2, 3, 4, 5, 6})));
+  const state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(vector_type({1, 2, 3, 4, 5, 6})));
   auto state = spacecraft_state(state_prov, attitude_prov, 100.0);
   auto vec = state.get_integrated_state();
   EXPECT_EQ(vec.size(), 19);
@@ -39,13 +39,13 @@ TEST(TestSpacecraftState, TestIntegratedStatesAttitude)
 
 TEST(TestSpacecraftState, TestSetIntegratedState)
 {
-  const state_type state_vec = {1, 2, 3, 4, 5, 6};
+  const vector_type state_vec = {1, 2, 3, 4, 5, 6};
   const att_provider_ptr attitude_prov =
       make_shared<torque_free_attitude_provider>(torque_free_attitude_provider(
           arma::mat33(), {1, 2, 3, 4}, pv_coordinates(state_vec)));
-  const state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(state_type({1, 2, 3, 4, 5, 6})));
+  const state_provider_ptr state_prov = make_shared<pv_coordinates_provider>(pv_coordinates(vector_type({1, 2, 3, 4, 5, 6})));
   auto state = spacecraft_state(state_prov, attitude_prov, 100.0);
-  const state_type expected_vec = {2, 3, 4, 5, 6, 7, 1, 1, 1, 2, 3, 4, 5, 2, 3, 4, 1, 1, 1};
+  const vector_type expected_vec = {2, 3, 4, 5, 6, 7, 1, 1, 1, 2, 3, 4, 5, 2, 3, 4, 1, 1, 1};
   state.set_integrated_state(expected_vec);
   const auto updated_vec = state.get_integrated_state();
   EXPECT_TRUE(arma::approx_equal(updated_vec, expected_vec, "absdiff", 1e-6));

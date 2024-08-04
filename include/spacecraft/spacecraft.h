@@ -33,7 +33,7 @@ class spacecraft
   spacecraft_state _state;
 
 public:
-  spacecraft(std::string identifier, const state_type& state, const double& mass):
+  spacecraft(std::string identifier, const vector_type& state, const double& mass):
     m_identifier(std::move(identifier)),
     m_pv_coordinates(state),
     _attitude_provider(std::make_shared<constant_attitude_provider>()),
@@ -43,7 +43,7 @@ public:
       mass
     ){}
 
-  spacecraft(std::string identifier, const state_type& state, const double& mass, const std::shared_ptr<attitude_provider>& attitude_provider):
+  spacecraft(std::string identifier, const vector_type& state, const double& mass, const std::shared_ptr<attitude_provider>& attitude_provider):
     m_identifier(std::move(identifier)),
     m_pv_coordinates(state),
     _state(
@@ -52,7 +52,7 @@ public:
       mass ),
     _attitude_provider(attitude_provider){}
 
-  spacecraft(std::string identifier, const state_type& state, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
+  spacecraft(std::string identifier, const vector_type& state, const double& mass, const std::shared_ptr<maneuvers::maneuver_plan>& mp):
     m_identifier(std::move(identifier)),
     m_pv_coordinates(state),
     _state(

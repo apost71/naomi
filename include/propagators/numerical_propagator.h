@@ -5,47 +5,60 @@
 #ifndef NUMERICAL_PROPAGATOR_H
 #define NUMERICAL_PROPAGATOR_H
 
+#include <armadillo>
+#include "boost/numeric/odeint.hpp"
 #include "integrators/integrator.h"
 #include "spacecraft/spacecraft.h"
 #include "forces/force_model.h"
+
+using namespace naomi;
+
+template<>
+struct boost::numeric::odeint::vector_space_norm_inf<vector_type>
+{
+  typedef double result_type;
+
+  result_type operator()(const vector_type& s) const
+  {
+    return arma::norm(s, "inf");
+  }
+};  // namespace boost::numeric::odeint
+
+namespace boost::numeric::odeint
+{
+
+template<>
+struct is_resizeable<arma::vec>
+{
+  typedef true_type type;
+  const static bool value = type::value;
+};
+
+template<>
+struct same_size_impl<arma::vec, arma::vec>
+{
+  static bool same_size(const arma::vec& x, const arma::vec& y)
+  {
+    return x.size() == y.size();  // or use .n_elem attributes
+  }
+};
+
+template<>
+struct resize_impl<arma::vec, arma::vec>
+{
+  static void resize(arma::vec& v1, const arma::vec& v2)
+  {
+    v1.resize(v2.size());  // not sure if this is correct for arma
+  }
+};
+}
 
 namespace naomi::numeric
 {
 using namespace events;
 using namespace maneuvers;
 
-class propagation_state
-{
-  state_type _state;
-  std::map<
-    std::string,
-    std::pair<arma::span, std::shared_ptr<additional_state_provider>>
-  > _additional_state_providers;
 
-  std::map<std::string, std::pair<arma::span, std::shared_ptr<additional_state_provider>>> map_providers(
-    const std::vector<std::shared_ptr<additional_state_provider>>& additional_providers
-  )
-  {
-    const std::size_t start_idx = 8;
-    std::map<
-      std::string,
-      std::pair<arma::span, std::shared_ptr<additional_state_provider>>
-    > provider_map;
-    for (const auto& provider : additional_providers) {
-      const auto size = provider->get_size();
-      const auto end_idx = start_idx + size;
-      const auto prov_span = arma::span(start_idx + 1, end_idx);
-      provider_map[provider->get_name()] = {prov_span, provider};
-    }
-    return provider_map;
-  }
-
-public:
-  propagation_state(const state_type& state,
-      const std::vector<std::shared_ptr<additional_state_provider>>&
-          additional_state_providers):
-    _state(state), _additional_state_providers(map_providers(additional_state_providers)) {}
-};
 template <typename Stepper>
 class numerical_propagator
 {
@@ -182,7 +195,7 @@ public:
     for (std::size_t i = 0; i < times.size() - 1; i++) {
       double start_t = times[i];
       double end_t = times[i + 1];
-      state_type state = spacecraft->get_state().get_integrated_state();
+      vector_type state = spacecraft->get_state().get_integrated_state();
       state_and_time_type prev_state = {state, start_t};
       start_t = m_integrator.integrate( system, state , start_t , end_t , 0.1 );
       state_and_time_type new_state = {state, start_t};
@@ -227,9 +240,9 @@ public:
 
 typedef
   boost::numeric::odeint::runge_kutta_dopri5<
-    state_type,
+    vector_type,
     double,
-    state_type,
+    vector_type,
     double,
     boost::numeric::odeint::vector_space_algebra> rk_dopri5_stepper;
 }

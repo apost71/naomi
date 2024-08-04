@@ -28,7 +28,7 @@ TEST(TestHohmann, TestDeltaV)
   constexpr double initial_r = 6378000 + 250000;
   constexpr double target_r = 42164154.0;
   const arma::vec3 r = {initial_r, 0, 0};
-  const state_type sv = get_circular_orbit(r);
+  const vector_type sv = get_circular_orbit(r);
   hohmann_transfer ht(sv, target_r);
   const auto mp = ht.get_maneuver_plan();
 
@@ -63,7 +63,7 @@ TEST(TestHohmann, TestPropagation)
   constexpr double initial_r = 6378000 + 250000;
   constexpr double target_r = 42164154.0;
   const arma::vec3 r = {initial_r, 0, 0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
   auto mp =
       ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(initial_r));
@@ -84,7 +84,7 @@ TEST(TestHohmann, TestPropagationInclined)
   // double initial_r = 6378000 + 250000;
   constexpr double target_r = 42164154.0;
   const arma::vec3 r = {3900000.0, 3900000.0, 3900000.0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   hohmann_transfer ht(state_vec, target_r);
   auto mp = ht.get_maneuver_plan(keplerian_orbit::get_orbital_period(norm(r)));
   auto sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);
@@ -107,7 +107,7 @@ TEST(TestBiEllipticHohmann, TestSomethingElse)
   constexpr double initial_r = 7000000;
   constexpr double target_r = 105000000;
   const arma::vec3 r = {initial_r, 0, 0};
-  state_type state_vec = get_circular_orbit(r);
+  vector_type state_vec = get_circular_orbit(r);
   const bielliptic_hohmann_transfer ht(initial_r, target_r, target_r*2);
   auto mp = ht.get_maneuver_plan(0);
   auto sc = std::make_shared<spacecraft>("test", state_vec, 100.0, mp);

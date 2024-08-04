@@ -17,7 +17,7 @@ class pv_coordinates
   arma::vec3 _acc;
 
 public:
-  explicit pv_coordinates(const naomi::state_type& state)
+  explicit pv_coordinates(const naomi::vector_type& state)
   {
     if (state.size() == 6) {
       _pos = state(arma::span(0, 2));
@@ -54,7 +54,7 @@ public:
     return _acc;
   }
 
-  [[nodiscard]] auto to_vec() const -> naomi::state_type
+  [[nodiscard]] auto to_vec() const -> naomi::vector_type
   {
     const auto pv = join_cols(_pos, _vel);
     auto pva = join_cols(pv, _acc);
