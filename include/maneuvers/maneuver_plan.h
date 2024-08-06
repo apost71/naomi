@@ -100,7 +100,7 @@ public:
     return m_maneuvers.at(stage).get_trigger()->g(sv);
   }
 
-  vector_type get_control_input(double dt, spacecraft_state& state)
+  vector_type get_control_input(const double dt, spacecraft_state& state)
   {
     vector_type control_inp(9);
     for (const auto& maneuver: _active_maneuvers) {

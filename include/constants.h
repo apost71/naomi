@@ -9,6 +9,8 @@
 #define GRAVITATIONAL_CONSTANT 6.67428e-11L
 #endif
 
+#include <armadillo>
+
 // #ifndef EARTH_MU
 // #define EARTH_MU (3.986004418*10e14)
 // // #define EARTH_MU (3.9800000*10e14)

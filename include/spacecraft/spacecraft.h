@@ -122,8 +122,10 @@ public:
 
   void update(const double dt)
   {
-    const auto control_inp = m_maneuver_plan->get_control_input(dt, _state);
-    _state.get_state_provider()->apply_control(control_inp);
+    if (m_maneuver_plan != nullptr) {
+      const auto control_inp = m_maneuver_plan->get_control_input(dt, _state);
+      _state.get_state_provider()->apply_control(control_inp);
+    }
   }
 };
 }

@@ -35,6 +35,8 @@ public:
   earth()
     : celestial_body(constants::EARTH_MU, EARTH_SOI, EARTH_EQ_RADIUS, {EARTH_J2}){}
 
+  ~earth() override = default;
+
   auto get_potential_partial_derivative(
       Eigen::Vector3d position)
     -> Eigen::Vector3d override

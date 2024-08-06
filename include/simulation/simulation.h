@@ -34,19 +34,30 @@ public:
 
   std::pair<double, std::shared_ptr<simulation_observer<system_t>>> get_next_update()
   {
+    if (m_observers.empty()) {
+      return {0, nullptr};
+    }
     auto obs = m_observers.at(0);
     return {obs->get_next_update(), obs};
   }
 
-  void simulate(double duration)
+  void simulate(const double duration)
   {
     for(const auto& observer: m_observers) observer->initialize(m_system);
 
     while (m_t < duration)
     {
       auto next_update = get_next_update();
-      double curr_time = m_system->simulate_to(next_update.first);
-      next_update.second->observe_state(m_system);
+      double interval = 0;
+      if (next_update.second == nullptr) {
+        interval = m_t + duration;
+      } else {
+        interval = next_update.first;
+      }
+      const double curr_time = m_system->simulate_to(interval);
+      if (next_update.second != nullptr) {
+        next_update.second->observe_state(m_system);
+      }
       m_t = curr_time;
     }
     for(const auto& observer: m_observers) observer->terminate(m_system);

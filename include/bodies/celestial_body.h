@@ -30,6 +30,7 @@ protected:
   SymEngine::LLVMDoubleVisitor m_potential_partial_z_visitor;
 
 public:
+  virtual ~celestial_body() = default;
   explicit celestial_body(const double mu, const double soi, const double eq_radius, const std::initializer_list<double> higher_order_terms = {}): m_mu(mu), m_soi(soi), m_eq_radius(eq_radius), m_higher_order_terms(higher_order_terms)
   {
     SymEngine::RCP<const SymEngine::Basic> x, y, z, c;
