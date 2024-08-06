@@ -1,0 +1,1612 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="C++ Library for Astrodynamics Simulation and Experimentation">
+      
+      
+        <meta name="author" content="Alex Post">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>File volume_integrals.h - NOAMI Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="pink">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-volume_integralsh" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="NOAMI Documentation" class="md-header__button md-logo" aria-label="NOAMI Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            NOAMI Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File volume_integrals.h
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="pink" data-md-color-accent="pink"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/apost71/naomi" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    naomi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../.." class="md-tabs__link">
+          
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../basic_usage/" class="md-tabs__link">
+          
+  
+    
+  
+  Basic Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../propagation/" class="md-tabs__link">
+        
+  
+    
+  
+  Advanced Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../links/" class="md-tabs__link">
+          
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="NOAMI Documentation" class="md-nav__button md-logo" aria-label="NOAMI Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    NOAMI Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/apost71/naomi" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    naomi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Home
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Basic Usage
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Basic Usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../basic_usage/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basic usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../propagation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Propagation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../propagation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Advanced Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../links/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Links
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Classes
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Classes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotated/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class List
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../classes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Index
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hierarchy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Hierarchy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_members/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Members
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_member_functions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Member Functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_member_variables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Member Variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_member_typedefs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Member Typedefs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../class_member_enums/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Class Member Enumerations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Namespaces
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            Namespaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespaces/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace List
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespace_members/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace Members
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespace_member_functions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace Member Functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespace_member_variables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace Member Variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespace_member_typedefs/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace Member Typedefs
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../namespace_member_enums/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Namespace Member Enumerations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../variables/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Variables
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../macros/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Macros
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../files/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Files
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="file-volume_integralsh">File volume_integrals.h<a class="headerlink" href="#file-volume_integralsh" title="Permanent link">&para;</a></h1>
+<p><a href="../files/"><strong>File List</strong></a> <strong>&gt;</strong> <a href="../dir_d44c64559bbebec7f509842c48db8b23/"><strong>include</strong></a> <strong>&gt;</strong> <a href="../dir_fba38f648377aa56ae5d69782adf9e53/"><strong>math</strong></a> <strong>&gt;</strong> <a href="../volume__integrals_8h/"><strong>volume_integrals.h</strong></a></p>
+<p><a href="../volume__integrals_8h/">Go to the documentation of this file</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// //</span>
+<span class="c1">// // Created by alex on 7/12/2024.</span>
+<span class="c1">// //</span>
+<span class="c1">//</span>
+<span class="c1">// #ifndef VOLUME_INTEGRALS_H</span>
+<span class="c1">// #define VOLUME_INTEGRALS_H</span>
+<span class="c1">//</span>
+<span class="c1">//  /*******************************************************</span>
+<span class="c1">//         *                                                      *</span>
+<span class="c1">//  *  volInt.c                                            *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  This code computes volume integrals needed for      *</span>
+<span class="c1">//  *  determining mass properties of polyhedral bodies.   *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  For more information, see the accompanying README   *</span>
+<span class="c1">//  *  file, and the paper                                 *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  Brian Mirtich, &quot;Fast and Accurate Computation of    *</span>
+<span class="c1">//  *  Polyhedral Mass Properties,&quot; journal of graphics    *</span>
+<span class="c1">//  *  tools, volume 1, number 1, 1996.                    *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  This source code is public domain, and may be used  *</span>
+<span class="c1">//  *  in any way, shape or form, free of charge.          *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  Copyright 1995 by Brian Mirtich                     *</span>
+<span class="c1">//  *                                                      *</span>
+<span class="c1">//  *  mirtich@cs.berkeley.edu                             *</span>
+<span class="c1">//  *  http://www.cs.berkeley.edu/~mirtich                 *</span>
+<span class="c1">//         *                                                      *</span>
+<span class="c1">//  *******************************************************/</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//  Revision history</span>
+<span class="c1">//</span>
+<span class="c1">//  26 Jan 1996 Program creation.</span>
+<span class="c1">//</span>
+<span class="c1">//   3 Aug 1996 Corrected bug arising when polyhedron density</span>
+<span class="c1">//          is not 1.0.  Changes confined to function main().</span>
+<span class="c1">//          Thanks to Zoran Popovic for catching this one.</span>
+<span class="c1">//</span>
+<span class="c1">//  27 May 1997     Corrected sign error in translation of inertia</span>
+<span class="c1">//                  product terms to center of mass frame.  Changes</span>
+<span class="c1">//          confined to function main().  Thanks to</span>
+<span class="c1">//          Chris Hecker.</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">// #include &lt;stdio.h&gt;</span>
+<span class="c1">// #include &lt;string.h&gt;</span>
+<span class="c1">// #include &lt;math.h&gt;</span>
+<span class="c1">//</span>
+<span class="c1">// namespace naomi::geometry::test</span>
+<span class="c1">// {</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    constants</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// #define MAX_VERTS 100     /* maximum number of polyhedral vertices */</span>
+<span class="c1">// #define MAX_FACES 100     /* maximum number of polyhedral faces */</span>
+<span class="c1">// #define MAX_POLYGON_SZ 10 /* maximum number of verts per polygonal face */</span>
+<span class="c1">//</span>
+<span class="c1">// #define X 0</span>
+<span class="c1">// #define Y 1</span>
+<span class="c1">// #define Z 2</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    macros</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// #define SQR(x) ((x)*(x))</span>
+<span class="c1">// #define CUBE(x) ((x)*(x)*(x))</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    data structures</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// typedef struct {</span>
+<span class="c1">//   int numVerts;</span>
+<span class="c1">//   double norm[3];</span>
+<span class="c1">//   double w;</span>
+<span class="c1">//   int verts[MAX_POLYGON_SZ];</span>
+<span class="c1">//   struct polyhedron *poly;</span>
+<span class="c1">// } FACE;</span>
+<span class="c1">//</span>
+<span class="c1">// typedef struct polyhedron {</span>
+<span class="c1">//   int numVerts, numFaces;</span>
+<span class="c1">//   double verts[MAX_VERTS][3];</span>
+<span class="c1">//   FACE faces[MAX_FACES];</span>
+<span class="c1">// } POLYHEDRON;</span>
+<span class="c1">//</span>
+<span class="c1">// /* CUBE INPUT</span>
+<span class="c1">// 8</span>
+<span class="c1">//</span>
+<span class="c1">// -10  -10 -10</span>
+<span class="c1">// +10  -10 -10</span>
+<span class="c1">// +10  +10 -10</span>
+<span class="c1">// -10  +10 -10</span>
+<span class="c1">// -10  -10 +10</span>
+<span class="c1">// +10  -10 +10</span>
+<span class="c1">// +10  +10 +10</span>
+<span class="c1">// -10  +10 +10</span>
+<span class="c1">//</span>
+<span class="c1">// 6</span>
+<span class="c1">//</span>
+<span class="c1">// 4    0 3 2 1</span>
+<span class="c1">// 4    4 5 6 7</span>
+<span class="c1">// 4    0 1 5 4</span>
+<span class="c1">// 4    6 2 3 7</span>
+<span class="c1">// 4    1 2 6 5</span>
+<span class="c1">// 4    0 4 7 3</span>
+<span class="c1">//</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    globals</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// static int A;   /* alpha */</span>
+<span class="c1">// static int B;   /* beta */</span>
+<span class="c1">// static int C;   /* gamma */</span>
+<span class="c1">//</span>
+<span class="c1">// /* projection integrals */</span>
+<span class="c1">// static double P1, Pa, Pb, Paa, Pab, Pbb, Paaa, Paab, Pabb, Pbbb;</span>
+<span class="c1">//</span>
+<span class="c1">// /* face integrals */</span>
+<span class="c1">// static double Fa, Fb, Fc, Faa, Fbb, Fcc, Faaa, Fbbb, Fccc, Faab, Fbbc, Fcca;</span>
+<span class="c1">//</span>
+<span class="c1">// /* volume integrals */</span>
+<span class="c1">// static double T0, T1[3], T2[3], TP[3];</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    read in a polyhedron</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// inline void readPolyhedron(const char *name, POLYHEDRON *p)</span>
+<span class="c1">// {</span>
+<span class="c1">//   FILE *fp;</span>
+<span class="c1">//   char line[200], *c;</span>
+<span class="c1">//   int i, j, n;</span>
+<span class="c1">//   double dx1, dy1, dz1, dx2, dy2, dz2, nx, ny, nz, len;</span>
+<span class="c1">//   FACE *f;</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">//   if (!(fp = std::fopen(name, &quot;r&quot;))) {</span>
+<span class="c1">//     printf(&quot;i/o error\n&quot;);</span>
+<span class="c1">//     // exit(1);</span>
+<span class="c1">//   }</span>
+<span class="c1">//</span>
+<span class="c1">//   fscanf(fp, &quot;%d&quot;, &amp;p-&gt;numVerts);</span>
+<span class="c1">//   printf(&quot;Reading in %d vertices\n&quot;, p-&gt;numVerts);</span>
+<span class="c1">//   for (i = 0; i &lt; p-&gt;numVerts; i++)</span>
+<span class="c1">//     fscanf(fp, &quot;%lf %lf %lf&quot;,</span>
+<span class="c1">//            &amp;p-&gt;verts[i][X], &amp;p-&gt;verts[i][Y], &amp;p-&gt;verts[i][Z]);</span>
+<span class="c1">//</span>
+<span class="c1">//   fscanf(fp, &quot;%d&quot;, &amp;p-&gt;numFaces);</span>
+<span class="c1">//   printf(&quot;Reading in %d faces\n&quot;, p-&gt;numFaces);</span>
+<span class="c1">//   for (i = 0; i &lt; p-&gt;numFaces; i++) {</span>
+<span class="c1">//     f = &amp;p-&gt;faces[i];</span>
+<span class="c1">//     f-&gt;poly = p;</span>
+<span class="c1">//     fscanf(fp, &quot;%d&quot;, &amp;f-&gt;numVerts);</span>
+<span class="c1">//     for (j = 0; j &lt; f-&gt;numVerts; j++) fscanf(fp, &quot;%d&quot;, &amp;f-&gt;verts[j]);</span>
+<span class="c1">//</span>
+<span class="c1">//     /* compute face normal and offset w from first 3 vertices */</span>
+<span class="c1">//     dx1 = p-&gt;verts[f-&gt;verts[1]][X] - p-&gt;verts[f-&gt;verts[0]][X];</span>
+<span class="c1">//     dy1 = p-&gt;verts[f-&gt;verts[1]][Y] - p-&gt;verts[f-&gt;verts[0]][Y];</span>
+<span class="c1">//     dz1 = p-&gt;verts[f-&gt;verts[1]][Z] - p-&gt;verts[f-&gt;verts[0]][Z];</span>
+<span class="c1">//     dx2 = p-&gt;verts[f-&gt;verts[2]][X] - p-&gt;verts[f-&gt;verts[1]][X];</span>
+<span class="c1">//     dy2 = p-&gt;verts[f-&gt;verts[2]][Y] - p-&gt;verts[f-&gt;verts[1]][Y];</span>
+<span class="c1">//     dz2 = p-&gt;verts[f-&gt;verts[2]][Z] - p-&gt;verts[f-&gt;verts[1]][Z];</span>
+<span class="c1">//     nx = dy1 * dz2 - dy2 * dz1;</span>
+<span class="c1">//     ny = dz1 * dx2 - dz2 * dx1;</span>
+<span class="c1">//     nz = dx1 * dy2 - dx2 * dy1;</span>
+<span class="c1">//     len = sqrt(nx * nx + ny * ny + nz * nz);</span>
+<span class="c1">//     f-&gt;norm[X] = nx / len;</span>
+<span class="c1">//     f-&gt;norm[Y] = ny / len;</span>
+<span class="c1">//     f-&gt;norm[Z] = nz / len;</span>
+<span class="c1">//     f-&gt;w = - f-&gt;norm[X] * p-&gt;verts[f-&gt;verts[0]][X]</span>
+<span class="c1">//            - f-&gt;norm[Y] * p-&gt;verts[f-&gt;verts[0]][Y]</span>
+<span class="c1">//            - f-&gt;norm[Z] * p-&gt;verts[f-&gt;verts[0]][Z];</span>
+<span class="c1">//</span>
+<span class="c1">//   }</span>
+<span class="c1">//</span>
+<span class="c1">//   fclose(fp);</span>
+<span class="c1">//</span>
+<span class="c1">// }</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    compute mass properties</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">// /* compute various integrations over projection of face */</span>
+<span class="c1">// inline void compProjectionIntegrals(FACE* f)</span>
+<span class="c1">// {</span>
+<span class="c1">//   double a0, a1, da;</span>
+<span class="c1">//   double b0, b1, db;</span>
+<span class="c1">//   double a0_2, a0_3, a0_4, b0_2, b0_3, b0_4;</span>
+<span class="c1">//   double a1_2, a1_3, b1_2, b1_3;</span>
+<span class="c1">//   double C1, Ca, Caa, Caaa, Cb, Cbb, Cbbb;</span>
+<span class="c1">//   double Cab, Kab, Caab, Kaab, Cabb, Kabb;</span>
+<span class="c1">//   int i;</span>
+<span class="c1">//</span>
+<span class="c1">//   P1 = Pa = Pb = Paa = Pab = Pbb = Paaa = Paab = Pabb = Pbbb = 0.0;</span>
+<span class="c1">//</span>
+<span class="c1">//   for (i = 0; i &lt; f-&gt;numVerts; i++) {</span>
+<span class="c1">//     a0 = f-&gt;poly-&gt;verts[f-&gt;verts[i]][A];</span>
+<span class="c1">//     b0 = f-&gt;poly-&gt;verts[f-&gt;verts[i]][B];</span>
+<span class="c1">//     a1 = f-&gt;poly-&gt;verts[f-&gt;verts[(i + 1) % f-&gt;numVerts]][A];</span>
+<span class="c1">//     b1 = f-&gt;poly-&gt;verts[f-&gt;verts[(i + 1) % f-&gt;numVerts]][B];</span>
+<span class="c1">//     da = a1 - a0;</span>
+<span class="c1">//     db = b1 - b0;</span>
+<span class="c1">//     a0_2 = a0 * a0;</span>
+<span class="c1">//     a0_3 = a0_2 * a0;</span>
+<span class="c1">//     a0_4 = a0_3 * a0;</span>
+<span class="c1">//     b0_2 = b0 * b0;</span>
+<span class="c1">//     b0_3 = b0_2 * b0;</span>
+<span class="c1">//     b0_4 = b0_3 * b0;</span>
+<span class="c1">//     a1_2 = a1 * a1;</span>
+<span class="c1">//     a1_3 = a1_2 * a1;</span>
+<span class="c1">//     b1_2 = b1 * b1;</span>
+<span class="c1">//     b1_3 = b1_2 * b1;</span>
+<span class="c1">//</span>
+<span class="c1">//     C1 = a1 + a0;</span>
+<span class="c1">//     Ca = a1 * C1 + a0_2;</span>
+<span class="c1">//     Caa = a1 * Ca + a0_3;</span>
+<span class="c1">//     Caaa = a1 * Caa + a0_4;</span>
+<span class="c1">//     Cb = b1 * (b1 + b0) + b0_2;</span>
+<span class="c1">//     Cbb = b1 * Cb + b0_3;</span>
+<span class="c1">//     Cbbb = b1 * Cbb + b0_4;</span>
+<span class="c1">//     Cab = 3 * a1_2 + 2 * a1 * a0 + a0_2;</span>
+<span class="c1">//     Kab = a1_2 + 2 * a1 * a0 + 3 * a0_2;</span>
+<span class="c1">//     Caab = a0 * Cab + 4 * a1_3;</span>
+<span class="c1">//     Kaab = a1 * Kab + 4 * a0_3;</span>
+<span class="c1">//     Cabb = 4 * b1_3 + 3 * b1_2 * b0 + 2 * b1 * b0_2 + b0_3;</span>
+<span class="c1">//     Kabb = b1_3 + 2 * b1_2 * b0 + 3 * b1 * b0_2 + 4 * b0_3;</span>
+<span class="c1">//</span>
+<span class="c1">//     P1 += db * C1;</span>
+<span class="c1">//     Pa += db * Ca;</span>
+<span class="c1">//     Paa += db * Caa;</span>
+<span class="c1">//     Paaa += db * Caaa;</span>
+<span class="c1">//     Pb += da * Cb;</span>
+<span class="c1">//     Pbb += da * Cbb;</span>
+<span class="c1">//     Pbbb += da * Cbbb;</span>
+<span class="c1">//     Pab += db * (b1 * Cab + b0 * Kab);</span>
+<span class="c1">//     Paab += db * (b1 * Caab + b0 * Kaab);</span>
+<span class="c1">//     Pabb += da * (a1 * Cabb + a0 * Kabb);</span>
+<span class="c1">//   }</span>
+<span class="c1">//</span>
+<span class="c1">//   P1 /= 2.0;</span>
+<span class="c1">//   Pa /= 6.0;</span>
+<span class="c1">//   Paa /= 12.0;</span>
+<span class="c1">//   Paaa /= 20.0;</span>
+<span class="c1">//   Pb /= -6.0;</span>
+<span class="c1">//   Pbb /= -12.0;</span>
+<span class="c1">//   Pbbb /= -20.0;</span>
+<span class="c1">//   Pab /= 24.0;</span>
+<span class="c1">//   Paab /= 60.0;</span>
+<span class="c1">//   Pabb /= -60.0;</span>
+<span class="c1">// }</span>
+<span class="c1">//</span>
+<span class="c1">// inline void compFaceIntegrals(FACE* f)</span>
+<span class="c1">// {</span>
+<span class="c1">//   double *n, w;</span>
+<span class="c1">//   double k1, k2, k3, k4;</span>
+<span class="c1">//</span>
+<span class="c1">//   compProjectionIntegrals(f);</span>
+<span class="c1">//</span>
+<span class="c1">//   w = f-&gt;w;</span>
+<span class="c1">//   n = f-&gt;norm;</span>
+<span class="c1">//   k1 = 1 / n[C];</span>
+<span class="c1">//   k2 = k1 * k1;</span>
+<span class="c1">//   k3 = k2 * k1;</span>
+<span class="c1">//   k4 = k3 * k1;</span>
+<span class="c1">//</span>
+<span class="c1">//   Fa = k1 * Pa;</span>
+<span class="c1">//   Fb = k1 * Pb;</span>
+<span class="c1">//   Fc = -k2 * (n[A] * Pa + n[B] * Pb + w * P1);</span>
+<span class="c1">//</span>
+<span class="c1">//   Faa = k1 * Paa;</span>
+<span class="c1">//   Fbb = k1 * Pbb;</span>
+<span class="c1">//   Fcc = k3</span>
+<span class="c1">//       * (SQR(n[A]) * Paa + 2 * n[A] * n[B] * Pab + SQR(n[B]) * Pbb</span>
+<span class="c1">//          + w * (2 * (n[A] * Pa + n[B] * Pb) + w * P1));</span>
+<span class="c1">//</span>
+<span class="c1">//   Faaa = k1 * Paaa;</span>
+<span class="c1">//   Fbbb = k1 * Pbbb;</span>
+<span class="c1">//   Fccc = -k4</span>
+<span class="c1">//       * (CUBE(n[A]) * Paaa + 3 * SQR(n[A]) * n[B] * Paab</span>
+<span class="c1">//          + 3 * n[A] * SQR(n[B]) * Pabb + CUBE(n[B]) * Pbbb</span>
+<span class="c1">//          + 3 * w * (SQR(n[A]) * Paa + 2 * n[A] * n[B] * Pab + SQR(n[B]) * Pbb)</span>
+<span class="c1">//          + w * w * (3 * (n[A] * Pa + n[B] * Pb) + w * P1));</span>
+<span class="c1">//</span>
+<span class="c1">//   Faab = k1 * Paab;</span>
+<span class="c1">//   Fbbc = -k2 * (n[A] * Pabb + n[B] * Pbbb + w * Pbb);</span>
+<span class="c1">//   Fcca = k3</span>
+<span class="c1">//       * (SQR(n[A]) * Paaa + 2 * n[A] * n[B] * Paab + SQR(n[B]) * Pabb</span>
+<span class="c1">//          + w * (2 * (n[A] * Paa + n[B] * Pab) + w * Pa));</span>
+<span class="c1">// }</span>
+<span class="c1">//</span>
+<span class="c1">// inline void compVolumeIntegrals(POLYHEDRON *p)</span>
+<span class="c1">// {</span>
+<span class="c1">//   FACE *f;</span>
+<span class="c1">//   double nx, ny, nz;</span>
+<span class="c1">//   int i;</span>
+<span class="c1">//</span>
+<span class="c1">//   T0 = T1[X] = T1[Y] = T1[Z]</span>
+<span class="c1">//      = T2[X] = T2[Y] = T2[Z]</span>
+<span class="c1">//      = TP[X] = TP[Y] = TP[Z] = 0;</span>
+<span class="c1">//</span>
+<span class="c1">//   for (i = 0; i &lt; p-&gt;numFaces; i++) {</span>
+<span class="c1">//</span>
+<span class="c1">//     f = &amp;p-&gt;faces[i];</span>
+<span class="c1">//</span>
+<span class="c1">//     nx = fabs(f-&gt;norm[X]);</span>
+<span class="c1">//     ny = fabs(f-&gt;norm[Y]);</span>
+<span class="c1">//     nz = fabs(f-&gt;norm[Z]);</span>
+<span class="c1">//     if (nx &gt; ny &amp;&amp; nx &gt; nz) C = X;</span>
+<span class="c1">//     else C = (ny &gt; nz) ? Y : Z;</span>
+<span class="c1">//     A = (C + 1) % 3;</span>
+<span class="c1">//     B = (A + 1) % 3;</span>
+<span class="c1">//</span>
+<span class="c1">//     compFaceIntegrals(f);</span>
+<span class="c1">//</span>
+<span class="c1">//     T0 += f-&gt;norm[X] * ((A == X) ? Fa : ((B == X) ? Fb : Fc));</span>
+<span class="c1">//</span>
+<span class="c1">//     T1[A] += f-&gt;norm[A] * Faa;</span>
+<span class="c1">//     T1[B] += f-&gt;norm[B] * Fbb;</span>
+<span class="c1">//     T1[C] += f-&gt;norm[C] * Fcc;</span>
+<span class="c1">//     T2[A] += f-&gt;norm[A] * Faaa;</span>
+<span class="c1">//     T2[B] += f-&gt;norm[B] * Fbbb;</span>
+<span class="c1">//     T2[C] += f-&gt;norm[C] * Fccc;</span>
+<span class="c1">//     TP[A] += f-&gt;norm[A] * Faab;</span>
+<span class="c1">//     TP[B] += f-&gt;norm[B] * Fbbc;</span>
+<span class="c1">//     TP[C] += f-&gt;norm[C] * Fcca;</span>
+<span class="c1">//   }</span>
+<span class="c1">//</span>
+<span class="c1">//   T1[X] /= 2; T1[Y] /= 2; T1[Z] /= 2;</span>
+<span class="c1">//   T2[X] /= 3; T2[Y] /= 3; T2[Z] /= 3;</span>
+<span class="c1">//   TP[X] /= 2; TP[Y] /= 2; TP[Z] /= 2;</span>
+<span class="c1">// }</span>
+<span class="c1">//</span>
+<span class="c1">//</span>
+<span class="c1">// /*</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">//    main</span>
+<span class="c1">//    ============================================================================</span>
+<span class="c1">// */</span>
+<span class="c1">//</span>
+<span class="c1">// /**</span>
+<span class="c1">// *</span>
+<span class="c1">// */</span>
+<span class="c1">// // int main_test(int argc, char *argv[])</span>
+<span class="c1">// // {</span>
+<span class="c1">// //   POLYHEDRON p;</span>
+<span class="c1">// //   double density, mass;</span>
+<span class="c1">// //   double r[3];            /* center of mass */</span>
+<span class="c1">// //   double J[3][3];         /* inertia tensor */</span>
+<span class="c1">// //</span>
+<span class="c1">// //   if (argc != 2) {</span>
+<span class="c1">// //     printf(&quot;usage:  %s &lt;polyhedron geometry filename&gt;\n&quot;, argv[0]);</span>
+<span class="c1">// //     exit(0);</span>
+<span class="c1">// //   }</span>
+<span class="c1">// //</span>
+<span class="c1">// //   readPolyhedron(argv[1], &amp;p);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   compVolumeIntegrals(&amp;p);</span>
+<span class="c1">// //</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;\nT1 =   %+20.6f\n\n&quot;, T0);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;Tx =   %+20.6f\n&quot;, T1[X]);</span>
+<span class="c1">// //   printf(&quot;Ty =   %+20.6f\n&quot;, T1[Y]);</span>
+<span class="c1">// //   printf(&quot;Tz =   %+20.6f\n\n&quot;, T1[Z]);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;Txx =  %+20.6f\n&quot;, T2[X]);</span>
+<span class="c1">// //   printf(&quot;Tyy =  %+20.6f\n&quot;, T2[Y]);</span>
+<span class="c1">// //   printf(&quot;Tzz =  %+20.6f\n\n&quot;, T2[Z]);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;Txy =  %+20.6f\n&quot;, TP[X]);</span>
+<span class="c1">// //   printf(&quot;Tyz =  %+20.6f\n&quot;, TP[Y]);</span>
+<span class="c1">// //   printf(&quot;Tzx =  %+20.6f\n\n&quot;, TP[Z]);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   density = 1.0;  /* assume unit density */</span>
+<span class="c1">// //</span>
+<span class="c1">// //   mass = density * T0;</span>
+<span class="c1">// //</span>
+<span class="c1">// //   /* compute center of mass */</span>
+<span class="c1">// //   r[X] = T1[X] / T0;</span>
+<span class="c1">// //   r[Y] = T1[Y] / T0;</span>
+<span class="c1">// //   r[Z] = T1[Z] / T0;</span>
+<span class="c1">// //</span>
+<span class="c1">// //   /* compute inertia tensor */</span>
+<span class="c1">// //   J[X][X] = density * (T2[Y] + T2[Z]);</span>
+<span class="c1">// //   J[Y][Y] = density * (T2[Z] + T2[X]);</span>
+<span class="c1">// //   J[Z][Z] = density * (T2[X] + T2[Y]);</span>
+<span class="c1">// //   J[X][Y] = J[Y][X] = - density * TP[X];</span>
+<span class="c1">// //   J[Y][Z] = J[Z][Y] = - density * TP[Y];</span>
+<span class="c1">// //   J[Z][X] = J[X][Z] = - density * TP[Z];</span>
+<span class="c1">// //</span>
+<span class="c1">// //   /* translate inertia tensor to center of mass */</span>
+<span class="c1">// //   J[X][X] -= mass * (r[Y]*r[Y] + r[Z]*r[Z]);</span>
+<span class="c1">// //   J[Y][Y] -= mass * (r[Z]*r[Z] + r[X]*r[X]);</span>
+<span class="c1">// //   J[Z][Z] -= mass * (r[X]*r[X] + r[Y]*r[Y]);</span>
+<span class="c1">// //   J[X][Y] = J[Y][X] += mass * r[X] * r[Y];</span>
+<span class="c1">// //   J[Y][Z] = J[Z][Y] += mass * r[Y] * r[Z];</span>
+<span class="c1">// //   J[Z][X] = J[X][Z] += mass * r[Z] * r[X];</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;center of mass:  (%+12.6f,%+12.6f,%+12.6f)\n\n&quot;, r[X], r[Y], r[Z]);</span>
+<span class="c1">// //</span>
+<span class="c1">// //   printf(&quot;inertia tensor with origin at c.o.m. :\n&quot;);</span>
+<span class="c1">// //   printf(&quot;%+15.6f  %+15.6f  %+15.6f\n&quot;, J[X][X], J[X][Y], J[X][Z]);</span>
+<span class="c1">// //   printf(&quot;%+15.6f  %+15.6f  %+15.6f\n&quot;, J[Y][X], J[Y][Y], J[Y][Z]);</span>
+<span class="c1">// //   printf(&quot;%+15.6f  %+15.6f  %+15.6f\n\n&quot;, J[Z][X], J[Z][Y], J[Z][Z]);</span>
+<span class="c1">// //</span>
+<span class="c1">// // }</span>
+<span class="c1">// }</span>
+<span class="c1">// #endif //VOLUME_INTEGRALS_H</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright © 2024 Alex Post
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.indexes", "navigation.top", "navigation.instant", "navigation.tracking"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="../../js/open_in_new_tab.js"></script>
+      
+    
+  </body>
+</html>
